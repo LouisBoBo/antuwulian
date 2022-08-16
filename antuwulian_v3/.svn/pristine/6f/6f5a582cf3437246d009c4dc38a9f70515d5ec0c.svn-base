@@ -1,0 +1,515 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/ll_device_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/transparent"
+        android:orientation="vertical"
+        app:layout_behavior="@string/bottom_sheet_behavior">
+
+        <ImageView
+            android:id="@+id/info_iv_car_people"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_10"
+            android:src="@mipmap/icon_switch_car" />
+
+        <RelativeLayout
+            android:id="@+id/rl_info_up"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/iv_info_up"
+                android:layout_width="@dimen/dp_92"
+                android:layout_height="@dimen/dp_19"
+                android:layout_centerHorizontal="true"
+                android:src="@drawable/icon_info_top" />
+
+            <ImageView
+                android:id="@+id/iv_up_down"
+                android:layout_width="@dimen/dp_15"
+                android:layout_height="@dimen/dp_15"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="@dimen/dp_2"
+                android:src="@drawable/arrow_top_list" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/app_divider_p1"
+                android:layout_below="@+id/iv_info_up"
+                android:background="@color/color_E5E5E5" />
+
+            <View
+                android:layout_width="@dimen/dp_92"
+                android:layout_height="@dimen/app_divider_p1"
+                android:layout_below="@+id/iv_info_up"
+                android:layout_centerHorizontal="true"
+                android:background="@color/color_FFFFFF" />
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/color_white_90"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp_10"
+                android:layout_marginTop="@dimen/dp_2"
+                android:layout_marginEnd="@dimen/dp_10"
+                android:layout_marginBottom="@dimen/dp_2"
+                android:background="@drawable/bg_e5e5e5_5">
+
+                <TextView
+                    android:id="@+id/tv_device_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/dp_10"
+                    android:layout_marginTop="@dimen/dp_14"
+                    android:ellipsize="end"
+                    android:maxWidth="@dimen/dp_130"
+                    android:singleLine="true"
+                    android:text="012345678"
+                    android:textColor="@color/color_000000"
+                    android:textSize="@dimen/sp_14"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_state"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/dp_14"
+                    android:layout_marginTop="@dimen/dp_16"
+                    android:layout_toEndOf="@+id/tv_device_name"
+                    android:text="离线"
+                    android:textColor="@color/color_666666"
+                    android:textSize="@dimen/sp_12" />
+
+                <TextView
+                    android:id="@+id/tv_battery"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginTop="@dimen/dp_18"
+                    android:layout_marginEnd="@dimen/dp_10"
+                    android:text="80%"
+                    android:textColor="@color/color_333333"
+                    android:textSize="@dimen/sp_9" />
+
+                <ImageView
+                    android:id="@+id/iv_battery"
+                    android:layout_width="@dimen/dp_22"
+                    android:layout_height="@dimen/dp_12"
+                    android:layout_marginTop="@dimen/dp_18"
+                    android:layout_marginEnd="@dimen/dp_2"
+                    android:layout_toStartOf="@+id/tv_battery"
+                    android:src="@drawable/icon_battery_80" />
+
+                <TextView
+                    android:id="@+id/tv_gsm_number"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/dp_14"
+                    android:layout_marginEnd="@dimen/dp_5"
+                    android:layout_toStartOf="@+id/iv_battery"
+                    android:text="6"
+                    android:textColor="@color/color_49ABFF"
+                    android:textSize="@dimen/sp_8"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:id="@+id/iv_gsm"
+                    android:layout_width="@dimen/dp_17"
+                    android:layout_height="@dimen/dp_12"
+                    android:layout_marginTop="@dimen/dp_18"
+                    android:layout_marginEnd="@dimen/dp_2"
+                    android:layout_toStartOf="@+id/tv_gsm_number"
+                    android:src="@drawable/icon_gsm_80" />
+
+                <TextView
+                    android:id="@+id/tv_bd_number"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/dp_14"
+                    android:layout_marginEnd="@dimen/dp_5"
+                    android:layout_toStartOf="@+id/iv_gsm"
+                    android:text="10"
+                    android:textColor="@color/color_49ABFF"
+                    android:textSize="@dimen/sp_8"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/iv_bd_number"
+                    android:layout_width="@dimen/dp_10"
+                    android:layout_height="@dimen/dp_16"
+                    android:layout_marginTop="@dimen/dp_16"
+                    android:layout_toStartOf="@+id/tv_bd_number"
+                    android:text="B"
+                    android:textColor="@color/color_49ABFF" />
+
+                <TextView
+                    android:id="@+id/tv_gps_number"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/dp_14"
+                    android:layout_marginEnd="@dimen/dp_5"
+                    android:layout_toStartOf="@+id/iv_bd_number"
+                    android:text="10"
+                    android:textColor="@color/color_49ABFF"
+                    android:textSize="@dimen/sp_8"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/iv_gps_number"
+                    android:layout_width="@dimen/dp_10"
+                    android:layout_height="@dimen/dp_16"
+                    android:layout_marginTop="@dimen/dp_16"
+                    android:layout_toStartOf="@+id/tv_gps_number"
+                    android:text="G"
+                    android:textColor="@color/color_49ABFF" />
+
+                <TextView
+                    android:id="@+id/tv_gps_number_all"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/dp_14"
+                    android:layout_marginEnd="@dimen/dp_5"
+                    android:layout_toStartOf="@+id/iv_gps_number"
+                    android:text="10"
+                    android:textColor="@color/color_49ABFF"
+                    android:textSize="@dimen/sp_8"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:id="@+id/iv_gps_number_all"
+                    android:layout_width="@dimen/dp_14"
+                    android:layout_height="@dimen/dp_14"
+                    android:layout_marginTop="@dimen/dp_18"
+                    android:layout_marginEnd="@dimen/dp_2"
+                    android:layout_toStartOf="@+id/tv_gps_number_all"
+                    android:src="@drawable/icon_gps_number" />
+
+                <ImageView
+                    android:id="@+id/iv_loc_type"
+                    android:layout_width="@dimen/dp_14"
+                    android:layout_height="@dimen/dp_14"
+                    android:layout_marginTop="@dimen/dp_18"
+                    android:layout_marginEnd="@dimen/dp_8"
+                    android:layout_toStartOf="@+id/iv_gps_number_all"
+                    android:src="@mipmap/icon_info_gps" />
+
+                <TextView
+                    android:id="@+id/tv_speed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tv_device_name"
+                    android:layout_marginStart="@dimen/dp_10"
+                    android:layout_marginTop="@dimen/dp_10"
+                    android:text="0.00km/h"
+                    android:textColor="@color/color_666666"
+                    android:textSize="@dimen/sp_12" />
+
+                <TextView
+                    android:id="@+id/tv_voltage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tv_device_name"
+                    android:layout_marginStart="@dimen/dp_10"
+                    android:layout_marginTop="@dimen/dp_10"
+                    android:layout_toEndOf="@+id/tv_speed"
+                    android:text="12.22V"
+                    android:textColor="@color/color_666666"
+                    android:textSize="@dimen/sp_12"
+                    android:visibility="gone" />
+
+
+                <TextView
+                    android:id="@+id/tv_mode"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tv_device_name"
+                    android:layout_marginStart="@dimen/dp_12"
+                    android:layout_marginTop="@dimen/dp_10"
+                    android:layout_toEndOf="@+id/tv_voltage"
+                    android:text="@string/txt_location_mode_1"
+                    android:textColor="@color/color_666666"
+                    android:textSize="@dimen/sp_12" />
+
+                
+                <TextView
+                    android:id="@+id/tv_acc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tv_device_name"
+                    android:layout_marginStart="@dimen/dp_12"
+                    android:layout_marginTop="@dimen/dp_10"
+                    android:layout_toEndOf="@+id/tv_mode"
+                    android:text="@string/txt_acc_close"
+                    android:textColor="@color/color_666666"
+                    android:textSize="@dimen/sp_12" />
+
+                <TextView
+                    android:id="@+id/tv_power_state"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tv_device_name"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginTop="@dimen/dp_12"
+                    android:layout_marginEnd="@dimen/dp_16"
+                    android:gravity="center_vertical"
+                    android:text="@string/txt_acc_hint"
+                    android:textColor="@color/color_FF4044"
+                    android:textSize="9sp" />
+
+                <LinearLayout
+                    android:id="@+id/ll_mileage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tv_speed"
+                    android:layout_marginStart="@dimen/dp_10"
+                    android:layout_marginTop="@dimen/dp_14"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/iv_mileage"
+                        android:layout_width="@dimen/dp_14"
+                        android:layout_height="@dimen/dp_14"
+                        android:layout_gravity="center"
+                        android:visibility="gone"
+                        android:src="@drawable/icon_static_time" />
+
+                    <TextView
+                        android:id="@+id/tv_mileage"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="@string/txt_day_mileage"
+                        android:textSize="@dimen/sp_12" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_mileage_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tv_speed"
+                    android:layout_marginStart="@dimen/dp_3"
+                    android:layout_marginTop="@dimen/dp_14"
+                    android:layout_toEndOf="@+id/ll_mileage"
+                    android:text="0.00km"
+                    android:textColor="@color/color_333333"
+                    android:textSize="@dimen/sp_12" />
+
+                <LinearLayout
+                    android:id="@+id/ll_static_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/ll_mileage"
+                    android:layout_marginStart="@dimen/dp_10"
+                    android:layout_marginTop="@dimen/dp_14"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/iv_static_time"
+                        android:layout_width="@dimen/dp_14"
+                        android:layout_height="@dimen/dp_14"
+                        android:layout_gravity="center"
+                        android:src="@drawable/icon_static_time" />
+
+                    <TextView
+                        android:id="@+id/tv_static_time_zh"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="@string/txt_off_line_time"
+                        android:textSize="@dimen/sp_12" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_static_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/ll_mileage"
+                    android:layout_marginStart="@dimen/dp_3"
+                    android:layout_marginTop="@dimen/dp_14"
+                    android:layout_toEndOf="@+id/ll_static_time"
+                    android:text="1天5时5分"
+                    android:textColor="@color/color_333333"
+                    android:textSize="@dimen/sp_12" />
+
+                <LinearLayout
+                    android:id="@+id/ll_communication_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/ll_static_time"
+                    android:layout_marginStart="@dimen/dp_10"
+                    android:layout_marginTop="@dimen/dp_10"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/iv_communication"
+                        android:layout_width="@dimen/dp_14"
+                        android:layout_height="@dimen/dp_14"
+                        android:src="@drawable/icon_communication_home" />
+
+                    <TextView
+                        android:id="@+id/tv_communication_time_zh"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="@string/txt_communication_time"
+                        android:textSize="@dimen/sp_12" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_communication"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/ll_static_time"
+                    android:layout_marginStart="@dimen/dp_3"
+                    android:layout_marginTop="@dimen/dp_9"
+                    android:layout_toEndOf="@+id/ll_communication_time"
+                    android:text="2019-11-25  12:25:05"
+                    android:textColor="@color/color_333333"
+                    android:textSize="@dimen/sp_12" />
+
+                <LinearLayout
+                    android:id="@+id/ll_location_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/ll_communication_time"
+                    android:layout_marginStart="@dimen/dp_10"
+                    android:layout_marginTop="@dimen/dp_10"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/iv_location_time"
+                        android:layout_width="@dimen/dp_14"
+                        android:layout_height="@dimen/dp_14"
+                        android:src="@drawable/icon_location_home" />
+
+                    <TextView
+                        android:id="@+id/tv_location_time_zh"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="@string/txt_location_time"
+                        android:textSize="@dimen/sp_12" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_location_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/ll_communication_time"
+                    android:layout_marginStart="@dimen/dp_3"
+                    android:layout_marginTop="@dimen/dp_9"
+                    android:layout_toEndOf="@+id/ll_location_time"
+                    android:text="2019-11-25  12:25:05"
+                    android:textColor="@color/color_333333"
+                    android:textSize="@dimen/sp_12" />
+
+                <LinearLayout
+                    android:id="@+id/ll_address"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/ll_location_time"
+                    android:layout_marginStart="@dimen/dp_10"
+                    android:layout_marginTop="@dimen/dp_9"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/iv_address"
+                        android:layout_width="@dimen/dp_14"
+                        android:layout_height="@dimen/dp_14"
+                        android:layout_gravity="center"
+                        android:src="@drawable/icon_address_home" />
+
+                    <TextView
+                        android:id="@+id/tv_address_zh"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="@string/txt_address"
+                        android:textSize="@dimen/sp_12" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_address"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/dp_32"
+                    android:layout_below="@+id/ll_location_time"
+                    android:layout_marginStart="@dimen/dp_3"
+                    android:layout_marginTop="@dimen/dp_9"
+                    android:layout_marginBottom="@dimen/dp_6"
+                    android:layout_toEndOf="@+id/ll_address"
+                    android:ellipsize="end"
+                    android:maxLines="2"
+                    android:text="广东省深圳市龙华区天安大厦东北96米广东省深圳市龙华区天安大厦东北96米"
+                    android:textColor="@color/color_333333"
+                    android:textSize="@dimen/sp_12" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/dp_40"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btn_track"
+                        android:layout_width="@dimen/dp_52"
+                        android:layout_height="@dimen/dp_35"
+                        android:layout_gravity="center"
+                        android:layout_marginEnd="@dimen/dp_15"
+                        android:background="@drawable/bg_ff654c_3"
+                        android:gravity="center"
+                        android:text="@string/txt_track"
+                        android:textColor="@color/color_FFFFFF"
+                        android:textSize="@dimen/sp_13" />
+
+                    <Button
+                        android:id="@+id/btn_record"
+                        android:layout_width="@dimen/dp_52"
+                        android:layout_height="@dimen/dp_35"
+                        android:layout_gravity="center"
+                        android:layout_marginEnd="@dimen/dp_10"
+                        android:background="@drawable/bg_37c3cc_3"
+                        android:gravity="center"
+                        android:text="@string/txt_function_record"
+                        android:textColor="@color/color_FFFFFF"
+                        android:textSize="@dimen/sp_13" />
+                </LinearLayout>
+            </RelativeLayout>
+
+            <GridView
+                android:id="@+id/gridView_menu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp_10"
+                android:layout_marginTop="@dimen/dp_6"
+                android:layout_marginEnd="@dimen/dp_10"
+                android:background="@drawable/bg_e5e5e5_5_2"
+                android:listSelector="@color/transparent"
+                android:numColumns="5"
+                android:scrollbars="none" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/color_4A89FD"
+                android:layout_marginBottom="@dimen/dp_10"
+                android:layout_marginStart="@dimen/dp_15"
+                android:layout_marginEnd="@dimen/dp_15"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

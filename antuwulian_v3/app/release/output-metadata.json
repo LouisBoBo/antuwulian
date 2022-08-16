@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "artifactType": {
+    "type": "APK",
+    "kind": "Directory"
+  },
+  "applicationId": "com.slxk.gpsantu",
+  "variantName": "release",
+  "elements": [
+    {
+      "type": "SINGLE",
+      "filters": [],
+      "properties": [],
+      "versionCode": 10007,
+      "versionName": "2.0.6",
+      "enabled": true,
+      "outputFile": "atwl-release-20220715162340.apk"
+    }
+  ]
+}

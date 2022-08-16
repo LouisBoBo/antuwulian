@@ -1,0 +1,272 @@
+package com.slxk.gpsantu.mvp.ui.view.guideview;
+
+import android.content.Context;
+import android.graphics.Typeface;
+import android.view.View;
+import android.widget.TextView;
+
+
+import com.blankj.utilcode.util.SPUtils;
+import com.slxk.gpsantu.R;
+import com.slxk.gpsantu.app.MyApplication;
+import com.slxk.gpsantu.mvp.utils.ConstantValue;
+import com.slxk.gpsantu.mvp.utils.MyDisplayMetrics;
+
+import java.util.HashMap;
+
+
+public class MaskHintView {
+
+    private Context mContext;
+    private View targetView1, targetView2, targetView3, targetView4;
+    private Typeface typeface; //自定义字体
+    private View targetViewBottom;
+    private View placeholder;
+    private View msgView_list;
+    private View msgView_arlm;
+    private int raduis5dp;
+    private ShowMashHintListener maskListener;
+    private static volatile MaskHintView maskHintView;
+
+    public MaskHintView(Context context) {
+        this.mContext = context;
+        typeface = Typeface.createFromAsset(mContext.getAssets(), "fonts/Medium.ttf");
+        raduis5dp = MyDisplayMetrics.dpToPxInt(5);
+    }
+
+    public static MaskHintView getInstance(Context mContext) {
+        if (maskHintView == null) {
+            synchronized (MaskHintView.class) {
+                if (maskHintView == null) {
+                    maskHintView = new MaskHintView(mContext);
+                }
+            }
+        }
+        return maskHintView;
+    }
+
+    public MaskHintView setTargetView(View v2, View v3, View v4) {
+        this.targetView2 = v2;
+        this.targetView3 = v3;
+        this.targetView4 = v4;
+        return this;
+    }
+
+    public MaskHintView setBottomView(View view) {
+        this.targetViewBottom = view;
+        return this;
+    }
+
+    public MaskHintView setHolderView(View view) {
+        this.placeholder = view;
+        return this;
+    }
+
+    public void setMsgView(View view1 , View view2) {
+        this.msgView_list = view1;
+        this.msgView_arlm = view2;
+    }
+
+    public interface ShowMashHintListener {
+        void showMaskHintNext();
+
+    }
+    public void showMaskHint(ShowMashHintListener listener) {
+        this.maskListener = listener;
+        showMaskHint2();
+    }
+
+    public void showMaskHint1() {
+        View view = View.inflate(mContext, R.layout.main_mask_hint_1, null);
+        setCustomTypeface(view);
+        HintView.Builder
+                .newInstance(mContext)
+                .setTargetView(targetView1)
+                .setCustomGuideView(view)
+                .setOffset(0, 0)//偏移量
+                .setDirction(HintView.Direction.RIGHT)//方向
+                .setShape(HintView.MyShape.CIRCULAR)
+                .setOutsideShape(HintView.MyShape.CIRCULAR)
+                .setRadius(targetView1.getWidth() / 2)
+                .setCancelable(true)
+                .setOnclickListener(new HintView.OnClickCallback() {
+                    @Override
+                    public void onClickedGuideView() {
+                        showMaskHint2();
+                    }
+                })
+                .build().show();
+    }
+
+    public void showMaskHint2() {
+        View view = View.inflate(mContext, R.layout.main_mask_hint_2, null);
+        setCustomTypeface(view);
+        HintView.Builder
+                .newInstance(mContext)
+                .setTargetView(targetView2)
+                .setCustomGuideView(view)
+                .setOffset(targetView2.getWidth(), 0)//偏移量
+                .setDirction(HintView.Direction.LEFT)//方向
+                .setShape(HintView.MyShape.CIRCULAR)
+                .setOutsideShape(HintView.MyShape.CIRCULAR)
+                .setRadius(targetView2.getWidth() / 2)
+                .setCancelable(true)
+                .setOnclickListener(new HintView.OnClickCallback() {
+                    @Override
+                    public void onClickedGuideView() {
+                        showMaskHint3();
+                    }
+                })
+                .build().show();
+    }
+
+    public void showMaskHint3() {
+        View view = View.inflate(mContext, R.layout.main_mask_hint_3, null);
+        setCustomTypeface(view);
+        HintView.Builder
+                .newInstance(mContext)
+                .setTargetView(targetView3)
+                .setCustomGuideView(view)
+                .setOffset(targetView3.getWidth(), 0)//偏移量
+                .setDirction(HintView.Direction.LEFT)//方向
+                .setShape(HintView.MyShape.CIRCULAR)
+                .setOutsideShape(HintView.MyShape.CIRCULAR)
+                .setRadius(targetView3.getWidth() / 2)
+                .setCancelable(true)
+                .setOnclickListener(new HintView.OnClickCallback() {
+                    @Override
+                    public void onClickedGuideView() {
+                        showMaskHint4();
+                    }
+                })
+                .build().show();
+    }
+
+    public void showMaskHint4() {
+        View view = View.inflate(mContext, R.layout.main_mask_hint_4, null);
+        setCustomTypeface(view);
+        HintView.Builder
+                .newInstance(mContext)
+                .setTargetView(targetView4)
+                .setCustomGuideView(view)
+                .setOffset(0, -MyDisplayMetrics.dpToPxInt(50))//偏移量
+                .setDirction(HintView.Direction.RIGHT_TOP)//方向
+                .setShape(HintView.MyShape.CIRCULAR)
+                .setOutsideShape(HintView.MyShape.CIRCULAR)
+                .setRadius(targetView4.getWidth() / 2)
+                .setCancelable(true)
+                .setOnclickListener(new HintView.OnClickCallback() {
+                    @Override
+                    public void onClickedGuideView() {
+                        showMaskHint5();
+                    }
+                })
+                .build().show();
+    }
+
+    public void showMaskHint5() {
+        if(msgView_list != null) {
+            View view = View.inflate(mContext, R.layout.main_mask_hint_7, null);
+            TextView tv_tip = view.findViewById(R.id.hint_text);
+            tv_tip.setText(R.string.txt_guide_hint_1);
+            setCustomTypeface(view);
+            HintView.Builder
+                    .newInstance(mContext)
+                    .setTargetView(msgView_list)
+                    .setCustomGuideView(view)
+                    .setDirction(HintView.Direction.TOP)//方向
+                    .setShape(HintView.MyShape.CIRCULAR)
+                    .setOffset(-MyDisplayMetrics.dpToPxInt(85), -MyDisplayMetrics.dpToPxInt(30))//偏移量
+                    .setTargetVieOffset(0, MyDisplayMetrics.dpToPxInt(10))
+                    .setOutsideSpace(-MyDisplayMetrics.dpToPxInt(28))
+                    .setDotted(false)
+                    .setRadius(MyDisplayMetrics.dpToPxInt(26))
+                    .setCancelable(true)
+                    .setOnclickListener(new HintView.OnClickCallback() {
+                        @Override
+                        public void onClickedGuideView() {
+                            showMaskHint8();
+                        }
+                    })
+                    .build().show();
+        } else {
+            showMaskHint8();
+        }
+    }
+
+
+    /**
+     * 地图上点击设备提示
+     */
+    public void showMaskHint6() {
+        View view = View.inflate(mContext, R.layout.main_mask_hint_5, null);
+        setCustomTypeface(view);
+        HintView.Builder
+                .newInstance(mContext)
+                .setTargetView(targetView4)
+                .setCustomGuideView(view)
+                .setDirction(HintView.Direction.ABOVE)
+                .setCancelable(true)
+                .setOnclickListener(new HintView.OnClickCallback() {
+                    @Override
+                    public void onClickedGuideView() {
+                        maskListener.showMaskHintNext();
+                        MyApplication.getMMKVUtils().put(ConstantValue.IS_FIRST_GUIDE, false);
+                    }
+                })
+                .build().show();
+    }
+
+    public void showMaskHint7() {
+        View view = View.inflate(mContext, R.layout.main_mask_hint_6, null);
+        HashMap<View, Integer> hashMap = new HashMap<>();
+        hashMap.put(targetViewBottom.findViewById(R.id.rl_top), raduis5dp);
+        hashMap.put(targetViewBottom.findViewById(R.id.gridView_menu), raduis5dp);
+        HintView.Builder
+                .newInstance(mContext)
+                .setTargetView(placeholder)
+                .setShape(HintView.MyShape.RECTANGULAR)
+                .setCustomGuideView(view)
+                .setMoreTransparentView(hashMap)
+                .setDirction(HintView.Direction.TOP)
+                .setCancelable(true)
+                .setOnclickListener(new HintView.OnClickCallback() {
+                    @Override
+                    public void onClickedGuideView() {
+                        //已经展示过定位详情弹框
+                    }
+                })
+                .build().show();
+    }
+
+    public void showMaskHint8() {
+        View view = View.inflate(mContext, R.layout.main_mask_hint_7, null);
+        TextView tv_tip = view.findViewById(R.id.hint_text);
+        tv_tip.setText(R.string.txt_guide_hint_6);
+        setCustomTypeface(view);
+        HintView.Builder
+                .newInstance(mContext)
+                .setTargetView(msgView_arlm)
+                .setCustomGuideView(view)
+                .setDirction(HintView.Direction.TOP)//方向
+                .setShape(HintView.MyShape.CIRCULAR)
+                .setOffset(-MyDisplayMetrics.dpToPxInt(85), -MyDisplayMetrics.dpToPxInt(30))//偏移量
+                .setTargetVieOffset(0, MyDisplayMetrics.dpToPxInt(10))
+                .setOutsideSpace(-MyDisplayMetrics.dpToPxInt(28))
+                .setDotted(false)
+                .setRadius(MyDisplayMetrics.dpToPxInt(26))
+                .setCancelable(true)
+                .setOnclickListener(new HintView.OnClickCallback() {
+                    @Override
+                    public void onClickedGuideView() {
+                        showMaskHint6();
+                    }
+                })
+                .build().show();
+    }
+
+    private void setCustomTypeface(View view) {
+        TextView textView = view.findViewById(R.id.hint_text);
+        textView.setTypeface(typeface);
+    }
+}

@@ -1,0 +1,202 @@
+package com.slxk.gpsantu.mvp.ui.activity;
+
+import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.graphics.BitmapFactory;
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.baidu.mapapi.map.BaiduMap;
+import com.baidu.mapapi.map.BitmapDescriptorFactory;
+import com.baidu.mapapi.map.MapStatus;
+import com.baidu.mapapi.map.MapStatusUpdateFactory;
+import com.baidu.mapapi.map.MapView;
+import com.baidu.mapapi.map.MarkerOptions;
+import com.baidu.mapapi.model.LatLng;
+import com.blankj.utilcode.util.SPUtils;
+import com.jess.arms.base.BaseActivity;
+import com.jess.arms.di.component.AppComponent;
+import com.jess.arms.utils.ArmsUtils;
+
+import com.slxk.gpsantu.app.MyApplication;
+import com.slxk.gpsantu.di.component.DaggerAlarmDetailBaiduComponent;
+import com.slxk.gpsantu.mvp.contract.AlarmDetailBaiduContract;
+import com.slxk.gpsantu.mvp.model.bean.AlarmRecordResultBean;
+import com.slxk.gpsantu.mvp.presenter.AlarmDetailBaiduPresenter;
+
+import com.slxk.gpsantu.R;
+import com.slxk.gpsantu.mvp.utils.ConstantValue;
+import com.slxk.gpsantu.mvp.utils.DateUtils;
+import com.slxk.gpsantu.mvp.utils.GpsUtils;
+import com.slxk.gpsantu.mvp.utils.LocationAddressParsed;
+import com.slxk.gpsantu.mvp.utils.ResultDataUtils;
+
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import butterknife.BindView;
+
+import static com.jess.arms.utils.Preconditions.checkNotNull;
+
+
+/**
+ * ================================================
+ * Description:
+ * <p>
+ * Created by MVPArmsTemplate on 09/09/2021 09:14
+ * <a href="mailto:jess.yan.effort@gmail.com">Contact me</a>
+ * <a href="https://github.com/JessYanCoding">Follow me</a>
+ * <a href="https://github.com/JessYanCoding/MVPArms">Star me</a>
+ * <a href="https://github.com/JessYanCoding/MVPArms/wiki">See me</a>
+ * <a href="https://github.com/JessYanCoding/MVPArmsTemplate">模版请保持更新</a>
+ * ================================================
+ */
+public class AlarmDetailBaiduActivity extends BaseActivity<AlarmDetailBaiduPresenter> implements AlarmDetailBaiduContract.View {
+
+    @BindView(R.id.tv_device_name)
+    TextView tvDeviceName;
+    @BindView(R.id.tv_alarm_time)
+    TextView tvAlarmTime;
+    @BindView(R.id.tv_alarm_address)
+    TextView tvAlarmAddress;
+    @BindView(R.id.mapView)
+    MapView mapView;
+
+    private float zoom = 15; // 缩放层级
+    //经纬度默认天安门
+    private double mLatitude = 39.90923;
+    private double mLongitude = 116.397428;
+
+    @Override
+    public void setupActivityComponent(@NonNull AppComponent appComponent) {
+        DaggerAlarmDetailBaiduComponent //如找不到该类,请编译一下项目
+                .builder()
+                .appComponent(appComponent)
+                .view(this)
+                .build()
+                .inject(this);
+    }
+
+    @Override
+    public int initView(@Nullable Bundle savedInstanceState) {
+        return R.layout.activity_alarm_detail_baidu; //如果你不需要框架帮你设置 setContentView(id) 需要自行设置,请返回 0
+    }
+
+    @SuppressLint("SetTextI18n")
+    @Override
+    public void initData(@Nullable Bundle savedInstanceState) {
+        MyApplication.getMMKVUtils().put(ConstantValue.ACTIVITY_STATUS, false);
+        BaiduMap mBaiduMap = mapView.getMap();
+        // 隐藏缩放控件
+        mapView.showZoomControls(false);
+        AlarmRecordResultBean.ItemsBean alarmBean = (AlarmRecordResultBean.ItemsBean) getIntent().getSerializableExtra("bean");
+        if (alarmBean != null) {
+            String title = alarmBean.getAlarm_name();
+            setTitle(title);
+            tvDeviceName.setText(TextUtils.isEmpty(alarmBean.getNumber()) ? String.valueOf(alarmBean.getImei()) : alarmBean.getNumber());
+            tvAlarmTime.setText(getString(R.string.txt_alarm_time_hint) + DateUtils.timeConversionDate_two(String.valueOf(alarmBean.getTime())));
+            String address = alarmBean.getAddr();
+            String addressLocation = address;
+            // 开始判断，如果是经纬度，则启动app自解析地址
+            address = address.replace(".", "");
+            address = address.replace(",", "");
+            address = address.replace("-", "");
+            address = address.replace(" ", "");
+            Pattern pattern = Pattern.compile("[0-9]*");
+            Matcher isNum = pattern.matcher(address);
+            if (!isNum.matches()) {
+                tvAlarmAddress.setText(getString(R.string.txt_alarm_address_hint) + address);
+            } else {
+                parseAddress(addressLocation);
+            }
+            if (mLatitude != 0 && mLongitude != 0) {
+//                LatLng deviceLatLng =  GpsUtils.baiduGPSConverter(mLatitude, mLongitude);
+                //返回的经纬度为 wgs84 需要转换为 火星坐标
+                double[] centerLocation = GpsUtils.toGCJ02Point(mLatitude, mLongitude, 6);
+                LatLng deviceLatLng = GpsUtils.baiduGPSConverter(centerLocation[0], centerLocation[1]);
+                mBaiduMap.addOverlay(new MarkerOptions().anchor(0.5f, 0.5f)
+                        .position(deviceLatLng)
+                        .perspective(false)
+                        .icon(BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeResource(getResources(), R.mipmap.icon_alarm))));
+                mBaiduMap.setMapStatus(MapStatusUpdateFactory.newMapStatus(new MapStatus.Builder().target(deviceLatLng).zoom(zoom).build()));
+            }
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void parseAddress(String addr) {
+        // 开始判断，如果是经纬度，则启动app自解析地址
+        if (!TextUtils.isEmpty(addr)) {
+            String[] location = addr.split(",");
+            mLatitude = Double.parseDouble(location[0]);
+            mLongitude = Double.parseDouble(location[1]);
+            //返回的经纬度为 wgs84 需要转换为 火星坐标
+            double[] locationTo = GpsUtils.toGCJ02Point(mLatitude, mLongitude, 6);
+            LocationAddressParsed.getLocationParsedInstance().Parsed(locationTo[0], locationTo[1]).setAddressListener(str -> {
+                if (tvAlarmAddress == null) return;
+                if (!TextUtils.isEmpty(str)) {
+                    tvAlarmAddress.setText(getString(R.string.txt_alarm_address_hint) + str);
+                } else {
+                    tvAlarmAddress.setText(getString(R.string.txt_alarm_address_hint) + addr);
+                }
+            });
+        }
+    }
+
+
+    @Override
+    public void showLoading() {
+
+    }
+
+    @Override
+    public void hideLoading() {
+
+    }
+
+    @Override
+    public void showMessage(@NonNull String message) {
+        checkNotNull(message);
+        ArmsUtils.snackbarText(message);
+    }
+
+    @Override
+    public void launchActivity(@NonNull Intent intent) {
+        checkNotNull(intent);
+        ArmsUtils.startActivity(intent);
+    }
+
+    @Override
+    public void killMyself() {
+        finish();
+    }
+
+    @Override
+    protected void onResume() {
+        //在activity执行onResume时执行mMapView. onResume ()，实现地图生命周期管理
+        mapView.onResume();
+        //开启地图定位图层
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        //在activity执行onPause时执行mMapView. onPause ()，实现地图生命周期管理
+        mapView.onPause();
+        super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (mapView != null) {
+            mapView.onDestroy();
+        }
+        mapView = null;
+        super.onDestroy();
+    }
+}

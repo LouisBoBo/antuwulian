@@ -1,0 +1,451 @@
+package com.slxk.gpsantu.app;
+
+import android.annotation.SuppressLint;
+import android.app.ActivityManager;
+import android.content.Context;
+import android.os.Process;
+import android.util.Log;
+
+import com.baidu.lbsapi.BMapManager;
+import com.baidu.lbsapi.MKGeneralListener;
+import com.baidu.mapapi.CoordType;
+import com.baidu.mapapi.SDKInitializer;
+import com.baidu.mapapi.model.LatLng;
+import com.blankj.utilcode.util.LogUtils;
+import com.blankj.utilcode.util.ToastUtils;
+import com.blankj.utilcode.util.Utils;
+import com.jess.arms.base.BaseApplication;
+import com.slxk.gpsantu.R;
+import com.slxk.gpsantu.mvp.model.bean.AlarmScreenDeviceBean;
+import com.slxk.gpsantu.mvp.utils.ConstantValue;
+import com.slxk.gpsantu.mvp.utils.CrashHandlerUtil;
+import com.slxk.gpsantu.mvp.utils.MMKVUtils;
+import com.slxk.gpsantu.mvp.utils.ManufacturerUtil;
+import com.slxk.gpsantu.mvp.utils.MyDisplayMetrics;
+import com.slxk.gpsantu.mvp.utils.PolygonalArea;
+import com.tencent.mmkv.MMKV;
+import com.umeng.analytics.MobclickAgent;
+import com.umeng.commonsdk.UMConfigure;
+import com.vondear.rxtool.RxTool;
+import com.xiaomi.channel.commonutils.logger.LoggerInterface;
+import com.xiaomi.mipush.sdk.Logger;
+import com.xiaomi.mipush.sdk.MiPushClient;
+
+import java.util.ArrayList;
+import java.util.List;
+
+
+public class MyApplication extends BaseApplication {
+
+    private static MyApplication myApp;
+
+    private long system_time = 0; // 点击时间，用于处理快速点击
+    private String mSimei; // 设备加密后的imei号
+    private String mLocInfo; // 设备的一些定位数据信息
+    private String deviceState; // 设备状态，在线，离线，休眠
+    private long mImei; // 设备imei号
+    private int carImageId; // 设备图标的id
+    private int modeId = 1; // 设备定位模式，默认常用模式
+    private String deviceMode; // 设备定位模式
+    private int signal_rate; // 信号强度百分比值
+    private int signa_val; // 卫星数量
+    private int power = 0; // 电量
+    private String latAndLon; // 经纬度(字符串格式：lat,lon)
+    private String version; // 设备版本
+    private String mIccid; // iccid
+    private String carName; // 设备名称
+    private int protocol = 1; // 设备协议
+    private List<Integer> increment; //增值服务
+
+    private boolean isBeforeAccount = false; // 当前登录账号是否和上一个登录账号相同
+    private boolean isMergeAccount = false; // 是否需要合并账号
+
+    private List<com.baidu.mapapi.model.LatLng> baiduListPoint; // 百度地图，添加中国区域范围值，构建多边形区域
+    private List<com.baidu.mapapi.model.LatLng> taiWanListPoint; // 百度地图，添加台湾区域范围值，构建多边形区域
+
+    // 百度街景使用
+    public BMapManager mBMapManager = null;
+
+    // 小米推送
+    private static final String APP_ID = "2882303761520090208";
+    private static final String APP_KEY = "5492009079208";
+    // 此TAG在adb logcat中检索自己所需要的信息， 只需在命令行终端输入 adb logcat | grep
+    public static final String TAG = "antuPush";
+
+    private static MMKVUtils mMMKVUtils;
+    public static MyApplication getMyApp() {
+        return myApp;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        myApp = this;
+        RxTool.init(this);
+        Utils.init(this);
+
+        // crash日志
+        CrashHandlerUtil.getInstance().init(this);
+
+        MyDisplayMetrics.init(this);
+        //在使用SDK各组件之前初始化context信息，传入ApplicationContext
+        SDKInitializer.initialize(this);
+        //自4.3.0起，百度地图SDK所有接口均支持百度坐标和国测局坐标，用此方法设置您使用的坐标类型.
+        //包括BD09LL和GCJ02两种坐标，默认是BD09LL坐标。
+        SDKInitializer.setCoordType(CoordType.GCJ02);
+
+        initEngineManager(this);
+
+        //轻量级的KV控件
+        MMKV.initialize(this);
+        mMMKVUtils = MMKVUtils.getInstance(getPackageName());
+        mMMKVUtils.changeSPToMMKV(this); //SharePreferences 切换到MMKV上来 新app 此段注释
+
+        // 友盟注册
+        UMConfigure.preInit(this,"5efd8652895ccac9e1000209","SlxkCheck");
+        if (ConstantValue.getUmengInit()){
+            UMConfigure.init(this, "5efd8652895ccac9e1000209", "SlxkCheck", UMConfigure.DEVICE_TYPE_PHONE, "");
+            // 选用AUTO页面采集模式
+            MobclickAgent.setPageCollectionMode(MobclickAgent.PageMode.AUTO);
+        }
+
+        if (!ManufacturerUtil.isHuaWeiPush(this)) { // 非华为使用小米推送
+            initForXiaoMiPush();
+        }
+        PolygonalArea.onAddBaiduPoint();
+        PolygonalArea.onTaiWanPoint();
+        PolygonalArea.onHangKongPoint();
+        PolygonalArea.onAoMenPoint();
+    }
+
+    /**
+     * 初始化小米推送
+     */
+    private void initForXiaoMiPush(){
+        //初始化push推送服务
+        if(shouldInit()) {
+            MiPushClient.registerPush(this, APP_ID, APP_KEY);
+        }
+        //打开Log
+        LoggerInterface newLogger = new LoggerInterface() {
+
+            @Override
+            public void setTag(String tag) {
+                // ignore
+            }
+            @SuppressLint("LogNotTimber")
+            @Override
+            public void log(String content, Throwable t) {
+                Log.d(TAG, content, t);
+            }
+
+            @SuppressLint("LogNotTimber")
+            @Override
+            public void log(String content) {
+                Log.d(TAG, content);
+            }
+        };
+        Logger.setLogger(this, newLogger);
+    }
+
+    private boolean shouldInit() {
+        ActivityManager am = ((ActivityManager) getSystemService(Context.ACTIVITY_SERVICE));
+        List<ActivityManager.RunningAppProcessInfo> processInfos = am.getRunningAppProcesses();
+        String mainProcessName = getApplicationInfo().processName;
+        int myPid = Process.myPid();
+        for (ActivityManager.RunningAppProcessInfo info : processInfos) {
+            if (info.pid == myPid && mainProcessName.equals(info.processName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static MMKVUtils getMMKVUtils() {
+        return mMMKVUtils;
+    }
+
+    /**
+     * 初始化百度街景
+     * @param context
+     */
+    public void initEngineManager(Context context) {
+        if (mBMapManager == null) {
+            mBMapManager = new BMapManager(context);
+        }
+
+        if (!mBMapManager.init(new MyGeneralListener())) {
+            ToastUtils.showShort(myApp.getString(R.string.txt_street_view_failed));
+        }
+    }
+
+    // 常用事件监听，用来处理通常的网络错误，授权验证错误等
+    public static class MyGeneralListener implements MKGeneralListener {
+
+        @Override
+        public void onGetPermissionState(int iError) {
+            // 非零值表示key验证未通过
+            if (iError != 0) {
+                // 授权Key错误：
+                ToastUtils.showShort(myApp.getString(R.string.txt_network_key_invalid) + iError);
+            }
+        }
+    }
+
+    /**
+     * 获取点击保存的时间戳
+     * @return
+     */
+    public long getSystemTime(){
+        return system_time;
+    }
+
+    /**
+     * 设置当前点击的时间戳
+     * @param time
+     */
+    public void setSystemTime(long time){
+        system_time = time;
+    }
+
+    /**
+     * 设备的加密的imei号
+     * @return
+     */
+    public String getSimei(){
+        return mSimei;
+    }
+
+    /**
+     * 赋值新的simei号
+     * @param imei
+     */
+    public void setSimei(String imei){
+        mSimei = imei;
+    }
+
+    /**
+     * 获取用户iccid
+     * @return
+     */
+    public String getmIccid(){
+        return mIccid;
+    }
+
+    public void setmIccid(String iccid){
+        this.mIccid = iccid;
+    }
+
+    /**
+     * 设备名称
+     * @return
+     */
+    public String getCarName(){
+        return carName;
+    }
+
+    public void setCarName(String name){
+        this.carName = name;
+    }
+
+    /**
+     * 用户的一些定位数据，定位时间，定位类型等数据
+     * @return
+     */
+    public String getLocInfo(){
+        return mLocInfo;
+    }
+
+    public void setLocInfo(String locInfo){
+        mLocInfo = locInfo;
+    }
+
+    /**
+     * 设备状态
+     * @return
+     */
+    public String getDeviceState(){
+        return deviceState;
+    }
+
+    public void setDeviceState(String state){
+        deviceState = state;
+    }
+
+    /**
+     * 设备的imei号
+     * @return
+     */
+    public long getImei(){
+        return mImei;
+    }
+
+    public void setImei(long imei){
+        mImei = imei;
+    }
+
+    /**
+     * 设备定位模式
+     * @return
+     */
+    public int getModeId(){
+        return modeId;
+    }
+
+    public void setModeId(int mode){
+        modeId = mode;
+    }
+
+    /**
+     * 设备定位模式
+     * @return
+     */
+    public String getDeviceMode(){
+        return deviceMode;
+    }
+
+    public void setDeviceMode(String mode){
+        deviceMode = mode;
+    }
+
+    /**
+     * 信号强度百分比值
+     * @return
+     */
+    public int getSignal_rate(){
+        return signal_rate;
+    }
+
+    public void setSignal_rate(int value){
+        signal_rate = value;
+    }
+
+    /**
+     * 卫星数量
+     * @return
+     */
+    public int getSigna_val(){
+        return signa_val;
+    }
+
+    public void setSigna_val(int value){
+        signa_val = value;
+    }
+
+    /**
+     * 电量值
+     * @return
+     */
+    public int getPower(){
+        return power;
+    }
+
+    public void setPower(int value){
+        power = value;
+    }
+
+    /**
+     * 设备协议
+     * @return
+     */
+    public int getProtocol(){
+        return protocol;
+    }
+
+    public void setProtocol(int value){
+        protocol = value;
+    }
+
+    /**
+     * 设备的图标id
+     * @return
+     */
+    public int getCarImageId(){
+        return carImageId;
+    }
+
+    public void setCarImageId(int imageId){
+        carImageId = imageId;
+    }
+
+    /**
+     * 经纬度
+     * @return
+     */
+    public String getLatAndLon(){
+        return latAndLon;
+    }
+
+    public void setLatAndLon(String latlon){
+        latAndLon = latlon;
+    }
+
+    /**
+     * 设备版本
+     * @return
+     */
+    public String getVersion(){
+        return version;
+    }
+
+    public void setVersion(String value){
+        version = value;
+    }
+
+    /**
+     * 增值服务
+     * @return
+     */
+    public List<Integer> getIncrement() {
+        return increment;
+    }
+
+    public void setIncrement(List<Integer> increment) {
+        this.increment = increment;
+    }
+
+    /**
+     * 清理临时缓存数据
+     */
+    public void clearData(){
+        mSimei = "";
+        mLocInfo = "";
+        deviceState = "";
+        mImei = 0;
+        deviceMode = "";
+        signal_rate = 0;
+        signa_val = 0;
+        power = 0;
+        carImageId = 0;
+        latAndLon = "";
+        version = "";
+        mIccid = "";
+        carName = "";
+        protocol = 1;
+    }
+
+    /**
+     * 是否是上一个账号登录
+     * @param isAccount
+     */
+    public void setBeforeAccount(boolean isAccount){
+        this.isBeforeAccount = isAccount;
+    }
+
+    public boolean isBeforeAccount(){
+        return isBeforeAccount;
+    }
+
+    /**
+     * 是否需要合并账号
+     * @param mergeAccount
+     */
+    public void setMergeAccount(boolean mergeAccount){
+        this.isMergeAccount = mergeAccount;
+    }
+
+    public boolean isMergeAccount(){
+        return isMergeAccount;
+    }
+
+}

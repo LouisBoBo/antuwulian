@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Frequently asked questions and answers</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+<style type="text/css">
+    body{background:#E0EAF4;font-family:"微软雅黑";}
+    .problemBox{width:90%;margin:0px auto;margin-bottom:80px;margin-top:30px;}
+    .problem{margin-bottom:25px;border:1px solid #00a4e4;padding:5px 10px;border-radius:3px;}
+    .p{text-indent:2em;line-height:22px;}
+    .answer,.method{color:#00a4e4;padding-left:8px;}
+    label b{color:red;}
+</style>
+<div class="problemBox">
+    <h2 style="text-align:center;color:#00a4e4;">Frequently asked questions and answers</h2>
+    <div class="problem">
+        <label><b>1.What should be paid attention to when using the device?</b></label>
+        <div>
+            <p><b class="answer">Answer:</b></p>
+            <p class="p">The device with built in battery,do not place the device near fire or high temperature (such as near the exhaust pipe) to avoid explosion.The device should be placed in a waterproof and moisture-proof area to avoid deformation and corrosion caused by moisture.</p>
+        </div>
+    </div>
+
+    <div class="problem">
+        <label><b>2.What should I pay attention to when charging the device?</b></label>
+        <div>
+            <p><b class="answer">Answer:</b></p>
+            <p class="p">(1) During the charging period, the status of the power indicator light is steady red, and the red indicator light is off when it is full. You can check the power of the device through the client (mobile APP or computer).</p>
+            <p class="p">(2) Use the charger to connect to the factory-configured data cable for charging. It takes about 11-13 hours for the device to fully charge, and the charger output current needs to be above 1A. The smaller the current, the slower the charging.</p>
+        </div>
+    </div>
+    <div class="problem">
+        <label><b>3.What does parking mean?</b></label>
+        <div>
+            <p><b class="answer">Answer:</b></p>
+            <p class="p">When the device is in a static state for 10 minutes, it will automatically enter the power-saving sleep mode. In this mode, the client display device is in the "parking" state, and when the device senses vibration, it can be intelligently awakened to resume online.</p>
+        </div>
+    </div>
+    <div class="problem">
+        <label><b>4.What are the conditions that cause the device to go offline?</b></label>
+        <div>
+            <p><b class="answer">Answer:</b></p>
+            <p class="p" style="color:red;">4.1 The device is not turned on or it is run out of battery.</p>
+            <p class="p"><b class="method">Solution：</b>Restar the device; log in to the monitoring platform (mobile APP, computer platform) to check the remaining power; charge the device, restart the device after it is full.</p>
+            <p class="p" style="color:red;">4.2 Set up periodic positioning.</p>
+            <p class="p"><b class="method">Solution：</b>Cancel the setting of periodic positioning, the device will resume real-time positioning after the next cycle is online or after rebooting.</p>
+            <p class="p" style="color:red;">4.3 SIM card is out of service.</p>
+            <p class="p"><b class="method">Solution：</b>Contact our online customer service to recharge, re-start after recharging.</p>
+            <p class="p" style="color:red;">4.4 SIM card contact is not good.</p>
+            <p class="p"><b class="method">Solution：</b>Reinstall the SIM card in the direction of the card indicated on the card slot cover.</p>
+            <p class="p" style="color:red;">4.5 The vehicle is in an underground parking lot and the tunnel signal is weak.</p>
+            <p class="p"><b class="method">Solution：</b>Leave the signal weak area.</p>
+        </div>
+    </div>
+
+    <div class="problem">
+        <label><b>5.Why IoT cards do not support remote monitoring?</b></label>
+        <div>
+            <p><b class="answer">Answer:</b></p>
+            <p class="p">The remote monitoring function is to monitor by way of call, so it is necessary to use a SIM card with a voice call function, and the Internet of Things card only has a GPRS Internet access function and no call function. Remote monitoring will generate a certain amount of call charges, which will be charged by the local carrier of the user according to the local package fee.</p>
+        </div>
+    </div>
+
+    <div class="problem">
+        <label><b>6.Why is the indoor GPS signal indicator light on?</b></label>
+        <div>
+            <p><b class="answer">Answer:</b></p>
+            <p class="p">Due to the occlusion of reinforced concrete, the GPS satellite signal cannot be received indoors, so the GPS signal indicator will always be bright indoors. What is the positioning in the room? When the GPS signal cannot be received, it will generally be converted to LBS mobile phone base station positioning or WIFI positioning.</p>
+        </div>
+    </div>
+
+    <div class="problem">
+        <label><b>7.Why install a SIM card?</b></label>
+        <div>
+            <p><b class="answer">Answer:</b></p>
+            <p class="p">The locator must install a GPRS flow card to upload positioning data to our monitoring platform.</p>
+        </div>
+    </div>
+
+    <div class="problem">
+        <label><b>8.How to renew the flow card?</b></label>
+        <div>
+            <p><b class="answer">Answer:</b></p>
+            <p class="p">The IoT card configured by our company can be used free of charge for one year from the date of activation. A year later, we need to recharge the platform by ourselves, or we can contact our customer service for recharge.</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

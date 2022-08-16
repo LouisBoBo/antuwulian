@@ -1,0 +1,308 @@
+package com.slxk.gpsantu.mvp.ui.activity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.PopupWindow;
+
+import com.blankj.utilcode.util.ActivityUtils;
+import com.blankj.utilcode.util.SPUtils;
+import com.blankj.utilcode.util.ToastUtils;
+import com.jess.arms.base.BaseActivity;
+import com.jess.arms.di.component.AppComponent;
+import com.jess.arms.utils.ArmsUtils;
+import com.slxk.gpsantu.R;
+import com.slxk.gpsantu.app.MyApplication;
+import com.slxk.gpsantu.di.component.DaggerUserSwitchComponent;
+import com.slxk.gpsantu.mvp.contract.UserSwitchContract;
+import com.slxk.gpsantu.mvp.model.api.Api;
+import com.slxk.gpsantu.mvp.model.api.ModuleValueService;
+import com.slxk.gpsantu.mvp.model.bean.DeviceGroupResultBean;
+import com.slxk.gpsantu.mvp.model.entity.TreeData;
+import com.slxk.gpsantu.mvp.model.putbean.DeviceGroupPutBean;
+import com.slxk.gpsantu.mvp.presenter.UserSwitchPresenter;
+import com.slxk.gpsantu.mvp.ui.adapter.TreeUserCheckAdapter;
+import com.slxk.gpsantu.mvp.utils.BroadcastReceiverUtil;
+import com.slxk.gpsantu.mvp.utils.ConstantValue;
+import com.slxk.gpsantu.mvp.utils.Utils;
+import com.slxk.gpsantu.mvp.weiget.TaskProgressDialog;
+import com.slxk.gpsantu.mvp.weiget.UserManagePopupWindowDown;
+
+
+import java.util.ArrayList;
+import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
+import static com.jess.arms.utils.Preconditions.checkNotNull;
+
+
+/**
+ * ================================================
+ * Description: 切换下级组织，下级账号界面
+ * <p>
+ * Created by MVPArmsTemplate on 07/10/2021 17:33
+ * <a href="mailto:jess.yan.effort@gmail.com">Contact me</a>
+ * <a href="https://github.com/JessYanCoding">Follow me</a>
+ * <a href="https://github.com/JessYanCoding/MVPArms">Star me</a>
+ * <a href="https://github.com/JessYanCoding/MVPArms/wiki">See me</a>
+ * <a href="https://github.com/JessYanCoding/MVPArmsTemplate">模版请保持更新</a>
+ * ================================================
+ */
+public class UserSwitchActivity extends BaseActivity<UserSwitchPresenter> implements UserSwitchContract.View {
+
+    @BindView(R.id.tree_list)
+    RecyclerView recyclerView;
+    @BindView(R.id.srl_view)
+    SwipeRefreshLayout srlView;
+
+    private int mLimitSizeForAccount = 100; // 限定每页账号限制个数
+    private boolean isRefresh;
+    TreeUserCheckAdapter treeListAdapter;
+    ArrayList<TreeData> treeData = new ArrayList<>();
+    private String family_Sname;
+    private String family_Sid;
+    private String family_add_Sid; // 添加下级的 父级id
+    private int parentIndex;
+    private int parentLevel;
+    private boolean isAddFamily;
+    private String familyAddId;
+    private String familyAddName;
+    private TreeData treeParent;
+    private UserManagePopupWindowDown userManagePopupWindowDown;//向下弹框
+
+    private static final int mCountDownTime = 2; // 倒计时固定时长
+    private int mCountDown = mCountDownTime; // 倒计时递减时长
+    private String taskId; // 任务id
+    private TaskProgressDialog taskProgressDialog;
+
+    private PopupWindow mPopupWindow;
+    private String familyAuth; // 功能
+
+    private static final int Intent_Account_List = 12;
+
+    // 多语言数据
+//    private ArrayList<LanguageModel> mLanguageModels;
+
+    private String mCheckoutUser;
+    private String mCheckoutSuccess;
+
+    @Override
+    public void setupActivityComponent(@NonNull AppComponent appComponent) {
+        DaggerUserSwitchComponent.builder()
+                .appComponent(appComponent)
+                .view(this)
+                .build()
+                .inject(this);
+    }
+
+    @Override
+    public int initView(@Nullable Bundle savedInstanceState) {
+        return R.layout.activity_user_switch;//setContentView(id);
+    }
+
+    @Override
+    public void initData(@Nullable Bundle savedInstanceState) {
+        onDefaultPrompt();
+
+        setTitle(mCheckoutUser);
+        family_Sid = MyApplication.getMMKVUtils().getString(ConstantValue.Family_Sid_Login, "");
+        family_Sname = MyApplication.getMMKVUtils().getString(ConstantValue.Family_Sname_Login, "");
+
+        //首次获取一二级数据
+        firstDefaultLevelData(true);
+        familyAuth = ConstantValue.getFamilyAuth();
+
+        treeListAdapter = new TreeUserCheckAdapter(this, treeData, new TreeUserCheckAdapter.FamilyAdapterListener() {
+            @Override
+            public void itemClick(String sid, int level) {
+                getAccountList(false, sid, level);
+            }
+
+            @Override
+            public void moreFamilyFunction(String sid, String name, View view, int level) {
+                //切换用户
+                MyApplication.getMyApp().clearData();
+                ToastUtils.showShort(mCheckoutSuccess);
+
+                MyApplication.getMyApp().setBeforeAccount(false);
+                MyApplication.getMyApp().setMergeAccount(false);
+
+                MyApplication.getMMKVUtils().put(ConstantValue.Family_Sid, sid);
+                MyApplication.getMMKVUtils().put(ConstantValue.Family_Sname, name);
+
+                setResult(RESULT_OK);
+                onBackPressed();
+
+                //切换用户刷新地图上的设备
+                BroadcastReceiverUtil.checkUserFreshDeviceList(UserSwitchActivity.this);
+            }
+        });
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        srlView.setColorSchemeResources(R.color.color_4A89FD, R.color.color_4A89FD);
+        srlView.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                //首次获取一二级数据
+                firstDefaultLevelData(true);
+            }
+        });
+
+        recyclerView.setAdapter(treeListAdapter);
+    }
+
+    /**
+     * 首次获取一二级数据
+     */
+    private void firstDefaultLevelData(boolean isRefresh) {
+        if (treeListAdapter != null) {
+            treeListAdapter.setShrinkIdListDefault();
+        }
+        treeData.clear();
+        TreeData treeRoot = new TreeData(family_Sname, family_Sid, 0, false, 0);
+        treeRoot.setClick(true); //默认展开一二级
+        treeData.add(treeRoot);
+        getAccountList(isRefresh, family_Sid, 0); // 第一次获取用户列表
+    }
+
+    private void getAccountList(boolean isRefresh, String sid, int level) {
+        if (ConstantValue.isAccountLogin()) {
+            DeviceGroupPutBean.ParamsBean paramsBean = new DeviceGroupPutBean.ParamsBean();
+            paramsBean.setF_limit_size(mLimitSizeForAccount);
+            paramsBean.setG_limit_size(0);
+            paramsBean.setFamilyid(sid);
+            DeviceGroupPutBean bean = new DeviceGroupPutBean();
+            bean.setParams(paramsBean);
+            bean.setFunc(ModuleValueService.Fuc_For_Device_Group_List);
+            bean.setModule(ModuleValueService.Module_For_Device_Group_List);
+            if (getPresenter() != null)
+                getPresenter().getDeviceGroupList(bean, isRefresh, level);
+        }
+    }
+
+    @Override
+    public void showMessage(@NonNull String message) {
+        checkNotNull(message);
+        ArmsUtils.snackbarText(message);
+    }
+
+    @Override
+    public void launchActivity(@NonNull Intent intent) {
+        checkNotNull(intent);
+        ArmsUtils.startActivity(intent);
+    }
+
+    @Override
+    public void killMyself() {
+        finish();
+    }
+
+    /**
+     * @param deviceGroupResultBean 返回的新增组织信息
+     * @param isRefresh
+     * @param sid                   item点击组织的 family_sid
+     * @param level                 item点击组织的所属 等级
+     */
+    //获取账号列表
+    @Override
+    public void getFamilyListSuccess(DeviceGroupResultBean deviceGroupResultBean, boolean isRefresh, String sid, int level) {
+        if (deviceGroupResultBean != null) {
+            List<DeviceGroupResultBean.FamilysBean> familyS = deviceGroupResultBean.getFamilys();
+            //当前级别下总数
+            int familySize = familyS.size();
+            if (!isAddFamily) {
+                int index = 0;
+                if (familyS.size() > 0 && treeData.size() > 0) {
+                    for (TreeData data : treeData) {
+                        if (data.getFamilySid().equals(sid)) {
+                            data.setHasChild(true); //当前sid 有下级
+                            index = treeData.indexOf(data); //当前 sid 的下标
+                            break;
+                        }
+                    }
+                }
+                if (level == 0) { // 0 级别时更新总数UI
+                    treeData.clear();
+                    treeData.add(0, new TreeData(family_Sname, family_Sid, 0, false, familySize));
+                }
+                for (int i = 0; i < familyS.size(); i++) {
+                    DeviceGroupResultBean.FamilysBean bean = familyS.get(i);
+                    treeData.add(index + 1 + i, new TreeData(bean.getSname(), bean.getSid(), level + 1, false, bean.getSub_count()));
+                }
+            } else {
+                //添加成功后 更新UI
+                isAddFamily = false;
+                if (treeParent != null) {
+                    int insertIndex = 0;//  新增组织的 同级组织最后一个下标
+                    for (int i = 0; i < treeData.size(); i++) {
+                        TreeData data = treeData.get(i);
+                        if (data.getLevel() == treeParent.getLevel() + 1) {//找出父级下级最后一个组织的下标
+                            insertIndex = i;
+                        }
+                    }
+                    if (insertIndex == 0) { //未找到说明 父级下没有展示下一级 所以在父级下新增层级
+                        insertIndex = parentIndex;
+                    }
+                    boolean isHasClick = treeParent.isClick();   //用户点击了展开下级组织就添加上去
+                    if (isHasClick) {
+                        boolean isHasChild = treeParent.getHasChild();
+                        if (!isHasChild) treeParent.setHasChild(true);
+                        treeData.add(insertIndex + 1, new TreeData(familyAddName, familyAddId, parentLevel + 1, false, 0));
+                    }
+                    if (familyS.size() > 0 && treeData.size() > 0) {//更新被添加下级的 组织个数
+                        for (TreeData data : treeData) {
+                            if (data.getFamilySid().equals(sid)) {
+                                data.setFamilyCount(deviceGroupResultBean.getFamilys_total());
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        treeListAdapter.listProcessing();
+        treeListAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void finishRefresh() {
+        srlView.setRefreshing(false);
+    }
+
+    @Override
+    public void endLoadFail() {
+
+    }
+
+    @Override
+    public void endLoadMore() {
+
+    }
+
+    @Override
+    public void setNoMore() {
+
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // TODO: add setContentView(...) invocation
+        ButterKnife.bind(this);
+    }
+
+    /**
+     * 默认提示语
+     */
+    private void onDefaultPrompt() {
+        mCheckoutUser = getString(R.string.txt_checkout_user);
+        mCheckoutSuccess = getString(R.string.txt_checkout_success);
+    }
+}

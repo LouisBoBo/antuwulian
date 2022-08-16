@@ -1,0 +1,69 @@
+package com.slxk.gpsantu.mvp.ui.adapter;
+
+import android.annotation.SuppressLint;
+import android.text.TextUtils;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.chad.library.adapter.base.BaseViewHolder;
+
+import com.slxk.gpsantu.R;
+import com.slxk.gpsantu.mvp.model.bean.DeviceListForManagerResultBean;
+import com.slxk.gpsantu.mvp.utils.ResultDataUtils;
+
+import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+/**
+ * 设备列表
+ */
+public class DeviceListAdapter extends BaseQuickAdapter<DeviceListForManagerResultBean.ItemsBean, BaseViewHolder> {
+
+
+    public DeviceListAdapter(int layoutResId, @Nullable List<DeviceListForManagerResultBean.ItemsBean> data) {
+        super(layoutResId, data);
+    }
+
+    @SuppressLint("SetTextI18n")
+    @Override
+    protected void convert(@NonNull BaseViewHolder helper, DeviceListForManagerResultBean.ItemsBean item) {
+        TextView tvState = helper.getView(R.id.tv_device_state);
+        TextView tvName = helper.getView(R.id.tv_device_name);
+        TextView tvImei = helper.getView(R.id.tv_device_imei);
+        if (TextUtils.isEmpty(item.getCar_number())) {
+            tvName.setText(String.valueOf(item.getImei()));
+        } else {
+            tvName.setText(item.getCar_number());
+        }
+        tvImei.setText("IMEI:" + item.getImei());
+        switch (item.getState()) {
+            case ResultDataUtils.Device_State_Line_On:
+                tvState.setText(mContext.getString(R.string.txt_state_line_on));
+                tvState.setTextColor(mContext.getResources().getColor(R.color.color_1FC62E));
+                break;
+            case ResultDataUtils.Device_State_Line_Sleep:
+                tvState.setText(mContext.getString(R.string.txt_state_line_sleep));
+                tvState.setTextColor(mContext.getResources().getColor(R.color.color_4592EB));
+                break;
+            case ResultDataUtils.Device_State_Line_Down:
+                tvState.setText(mContext.getString(R.string.txt_state_line_down));
+                tvState.setTextColor(mContext.getResources().getColor(R.color.color_999999));
+                break;
+
+        }
+    }
+
+    @Override
+    public void onBindViewHolder(BaseViewHolder holder, int position) {
+        super.onBindViewHolder(holder, position);
+        ViewGroup.LayoutParams params = holder.itemView.getLayoutParams();
+        params.height = LinearLayout.LayoutParams.WRAP_CONTENT;
+    }
+
+}

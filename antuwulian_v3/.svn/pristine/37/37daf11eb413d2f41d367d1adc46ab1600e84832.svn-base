@@ -1,0 +1,645 @@
+package com.slxk.gpsantu.mvp.ui.activity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.GridView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentManager;
+
+import com.jess.arms.base.BaseActivity;
+import com.jess.arms.di.component.AppComponent;
+import com.jess.arms.utils.ArmsUtils;
+
+import com.slxk.gpsantu.app.MyApplication;
+import com.slxk.gpsantu.di.component.DaggerSettingMoreComponent;
+import com.slxk.gpsantu.mvp.contract.SettingMoreContract;
+import com.slxk.gpsantu.mvp.model.api.Api;
+import com.slxk.gpsantu.mvp.model.api.ModuleValueService;
+import com.slxk.gpsantu.mvp.model.bean.AlertBean;
+import com.slxk.gpsantu.mvp.model.bean.DataCenterBean;
+import com.slxk.gpsantu.mvp.model.bean.DeviceConfigResultBean;
+import com.slxk.gpsantu.mvp.model.bean.DeviceDetailResultBean;
+import com.slxk.gpsantu.mvp.model.bean.DeviceListResultBean;
+import com.slxk.gpsantu.mvp.model.entity.BaseBean;
+import com.slxk.gpsantu.mvp.model.putbean.DeviceConfigPutBean;
+import com.slxk.gpsantu.mvp.model.putbean.DeviceDetailIntentBean;
+import com.slxk.gpsantu.mvp.model.putbean.OnKeyFunctionPutBean;
+import com.slxk.gpsantu.mvp.presenter.SettingMorePresenter;
+
+import com.slxk.gpsantu.R;
+import com.slxk.gpsantu.mvp.ui.adapter.FunctionAdapter;
+import com.slxk.gpsantu.mvp.utils.ConstantValue;
+import com.slxk.gpsantu.mvp.utils.FunctionType;
+import com.slxk.gpsantu.mvp.utils.ResultDataUtils;
+import com.blankj.utilcode.util.ToastUtils;
+import com.slxk.gpsantu.mvp.utils.Utils;
+import com.slxk.gpsantu.mvp.weiget.AlertAppDialog;
+import com.slxk.gpsantu.mvp.weiget.BreakdownExamineDialog;
+
+
+import java.util.ArrayList;
+import java.util.List;
+
+import butterknife.BindView;
+import butterknife.OnClick;
+
+import static com.jess.arms.utils.Preconditions.checkNotNull;
+
+
+/**
+ * ================================================
+ * Description: 更多功能
+ * <p>
+ * Created by MVPArmsTemplate on 09/08/2021 09:16
+ * <a href="mailto:jess.yan.effort@gmail.com">Contact me</a>
+ * <a href="https://github.com/JessYanCoding">Follow me</a>
+ * <a href="https://github.com/JessYanCoding/MVPArms">Star me</a>
+ * <a href="https://github.com/JessYanCoding/MVPArms/wiki">See me</a>
+ * <a href="https://github.com/JessYanCoding/MVPArmsTemplate">模版请保持更新</a>
+ * ================================================
+ */
+public class SettingMoreActivity extends BaseActivity<SettingMorePresenter> implements SettingMoreContract.View {
+
+
+    @BindView(R.id.rl_mileage_statistics)
+    RelativeLayout rl_mileage_statistics;
+    @BindView(R.id.rl_operation_note)
+    RelativeLayout rl_operation_note;
+    @BindView(R.id.rl_remote_listening)
+    RelativeLayout rl_remote_listening;
+    @BindView(R.id.rl_remote_switch)
+    RelativeLayout rl_remote_switch;
+    @BindView(R.id.rl_oil_electric_control)
+    RelativeLayout rl_oil_electric_control;
+    @BindView(R.id.rl_one_key_restart)
+    RelativeLayout rl_one_key_restart;
+    @BindView(R.id.rl_one_key_dormant)
+    RelativeLayout rl_one_key_dormant;
+    @BindView(R.id.rl_looking_device)
+    RelativeLayout rl_looking_device;
+    @BindView(R.id.text_one_key_dormant)
+    TextView mOneKeyDormant;
+    @BindView(R.id.rl_factory_reset)
+    RelativeLayout rl_factory_reset;
+    @BindView(R.id.rl_special)
+    RelativeLayout rl_special;
+    @BindView(R.id.rl_add_service)
+    RelativeLayout rl_addservice;
+    @BindView(R.id.gridView_menu1)
+    GridView gridViewMenu1; // 菜单
+    @BindView(R.id.gridView_menu2)
+    GridView gridViewMenu2; // 菜单
+    @BindView(R.id.gridView_menu3)
+    GridView gridViewMenu3; // 菜单
+    @BindView(R.id.gridView_menu4)
+    GridView gridViewMenu4; // 菜单
+
+    private String mSimei; // simei号
+    private int remoteSwitch; // 是否可远程开关机, -1不支持,1支持,0支持，但是不可用
+    private int onTimeSwitch; // 是否有定时开关机功能, 0不支持,1支持
+    private boolean isLineOn = false; //在线状态
+    private static DeviceListResultBean.ItemsBean selectCarBean; // 选中的设备
+    private static DeviceDetailResultBean selectDeviceDetailBean; // 选中的设备的详细信息
+
+    private List<DataCenterBean> functionBeans1; // 功能菜单
+    private List<DataCenterBean> functionBeans2; // 功能菜单
+    private List<DataCenterBean> functionBeans3; // 功能菜单
+    private List<DataCenterBean> functionBeans4; // 功能菜单
+    private FunctionAdapter mAdapter1;
+    private FunctionAdapter mAdapter2;
+    private FunctionAdapter mAdapter3;
+    private FunctionAdapter mAdapter4;
+    private String modeFunction = ""; //支持的模式
+    private int protocol = 1; // 设备协议
+
+    private boolean isContainRestart = false;
+    private boolean isFindDev = false;
+    private boolean isDevReset = false;
+    private boolean isContainSleep = false;
+    private boolean isContainWakeup = false;
+    private int phoneAlarm;
+    
+    public static Intent newInstance(DeviceDetailResultBean bean , DeviceListResultBean.ItemsBean itemsBean) {
+        selectDeviceDetailBean = bean;
+        selectCarBean = itemsBean;
+        return new Intent(MyApplication.getMyApp(), SettingMoreActivity.class);
+    }
+
+    @Override
+    public void setupActivityComponent(@NonNull AppComponent appComponent) {
+        DaggerSettingMoreComponent
+                .builder()
+                .appComponent(appComponent)
+                .view(this)
+                .build()
+                .inject(this);
+    }
+
+    @Override
+    public int initView(@Nullable Bundle savedInstanceState) {
+        return R.layout.activity_setting_more;
+    }
+
+    @Override
+    public void initData(@Nullable Bundle savedInstanceState) {
+        setTitle(getString(R.string.txt_function));
+        functionBeans1 = new ArrayList<>();
+        functionBeans2 = new ArrayList<>();
+        functionBeans3 = new ArrayList<>();
+        functionBeans4 = new ArrayList<>();
+        mSimei = MyApplication.getMyApp().getSimei();
+        getDeviceConfig();
+    }
+
+    /**
+     * 获取设备的配置信息，支持的功能等
+     */
+    private void getDeviceConfig() {
+        DeviceConfigPutBean.ParamsBean paramsBean = new DeviceConfigPutBean.ParamsBean();
+        if (!TextUtils.isEmpty(mSimei)){
+            paramsBean.setSimei(mSimei);
+        }
+        paramsBean.setType(ResultDataUtils.Config_Other);
+
+        DeviceConfigPutBean bean = new DeviceConfigPutBean();
+        bean.setParams(paramsBean);
+        bean.setFunc(ModuleValueService.Fuc_For_Config_Get);
+        bean.setModule(ModuleValueService.Module_For_Config_Get);
+
+        if (getPresenter() != null)
+            getPresenter().getDeviceConfig(bean);
+    }
+
+
+    @OnClick({R.id.rl_add_service,R.id.rl_fence, R.id.rl_mileage_statistics, R.id.rl_operation_note, R.id.rl_remote_listening, R.id.rl_remote_switch,
+            R.id.rl_oil_electric_control, R.id.rl_one_key_restart, R.id.rl_one_key_dormant, R.id.rl_breakdown_self_check,
+            R.id.rl_check_device_icon, R.id.rl_factory_reset, R.id.rl_looking_device, R.id.rl_penetrate, R.id.rl_special,R.id.rl_remote_trajectory, R.id.rl_remote_detail})
+    public void onViewClicked(View view) {
+        if (Utils.isButtonQuickClick(System.currentTimeMillis())) {
+            switch (view.getId()) {
+                case R.id.rl_add_service:
+                    launchActivity(PayWebViewActivity.newInstance(2,getString(R.string.menu_8), Api.Pay_Increment_Recharge + ConstantValue.getPayIncrementValue()));
+                    break;
+                case R.id.rl_fence:
+                    launchActivity(FenceActivity.newInstance());
+                    break;
+                case R.id.rl_mileage_statistics:
+                    launchActivity(MileageStatisticsActivity.newInstance());
+                    break;
+                case R.id.rl_operation_note:
+                    launchActivity(OperationRecordActivity.newInstance());
+                    break;
+                case R.id.rl_remote_listening:
+                    launchActivity(ListeningListActivity.newInstance());
+                    break;
+                case R.id.rl_remote_switch:
+                    launchActivity(RemoteSwitchActivity.newInstance(remoteSwitch, onTimeSwitch));
+                    break;
+                case R.id.rl_oil_electric_control:
+                    launchActivity(OilElectricityControlActivity.newInstance());
+                    break;
+                case R.id.rl_one_key_restart:
+                    onConfirmOneKeyFunction(ResultDataUtils.Function_Restart);
+                    break;
+                case R.id.rl_one_key_dormant: //一键休眠、一键唤醒
+                    if (isLineOn) {//在线
+                        onConfirmOneKeyFunction(ResultDataUtils.Function_Sleep);
+                    } else {
+                        if (isStateLineDown()) { //离线
+                            ToastUtils.showShort(getString(R.string.txt_operation_can_not));
+                        } else { //休眠 静止
+                            onConfirmOneKeyFunction(ResultDataUtils.Function_Wakeup);
+                        }
+                    }
+                    break;
+                case R.id.rl_breakdown_self_check:
+                    BreakdownExamineDialog dialog = new BreakdownExamineDialog();
+                    dialog.show(getSupportFragmentManager());
+                    break;
+                case R.id.rl_check_device_icon:
+                    launchActivity(IconCheckActivity.newInstance());
+                    break;
+                case R.id.rl_factory_reset:
+                    onConfirmOneKeyFunction(ResultDataUtils.Function_Reset);
+                    break;
+                case R.id.rl_looking_device:
+                    if (isStateLineDown())
+                        ToastUtils.showShort(getString(R.string.txt_state_line_down_hint));
+                    else
+                        onConfirmOneKeyFunction(ResultDataUtils.Function_Finddev);
+                    break;
+                case R.id.rl_penetrate:
+                    launchActivity(PenetrateActivity.newInstance());
+                    break;
+                case R.id.rl_special:
+                    launchActivity(AlarmSetSpecialActivity.newInstance());
+                    break;
+                case R.id.rl_remote_trajectory:
+                    isDeviceHistory();
+                    break;
+                case R.id.rl_remote_detail:
+                    detailInfo();
+                    break;
+            }
+        }
+    }
+
+    //历史轨迹
+    private void isDeviceHistory() {
+        if (selectCarBean != null && selectDeviceDetailBean != null) {
+            if (selectDeviceDetailBean.getDetail().getMode_id() == 8 || selectDeviceDetailBean.getDetail().getMode_id() == 9) {
+                AlertBean bean = new AlertBean();
+                bean.setTitle(getString(R.string.txt_tip));
+                bean.setAlert(getString(R.string.txt_quest_track_hint));
+                bean.setType(0);
+                AlertAppDialog dialog = new AlertAppDialog();
+                dialog.show(getSupportFragmentManager(), bean, new AlertAppDialog.onAlertDialogChange() {
+                    @Override
+                    public void onConfirm() {
+                        launchActivity(TrackAmapActivity.newInstance());
+                    }
+
+                    @Override
+                    public void onCancel() {
+
+                    }
+                });
+            } else {
+                launchActivity(TrackAmapActivity.newInstance());
+            }
+        }
+    }
+
+    //详情
+    private void detailInfo(){
+        if (selectDeviceDetailBean != null) {
+            DeviceDetailIntentBean bean = new DeviceDetailIntentBean();
+            bean.setDevice_number(selectCarBean.getCar_number());
+            bean.setImei(selectCarBean.getImei());
+            bean.setSimei(selectCarBean.getSimei());
+            bean.setCar_type(selectCarBean.getVersion());
+            bean.setState(selectCarBean.getState());
+            bean.setLast_pos(selectCarBean.getLast_pos());
+            bean.setIccid(selectDeviceDetailBean.getIccid());
+            bean.setStart_dev_time(selectDeviceDetailBean.getDetail().getStart_dev_time());
+            bean.setEnd_dev_time(selectDeviceDetailBean.getDetail().getEnd_dev_time());
+            bean.setBck_phone(selectDeviceDetailBean.getDetail().getBck_phone());
+            bean.setUser_name(selectDeviceDetailBean.getDetail().getUser_name());
+            bean.setCenter_phone(selectDeviceDetailBean.getCenter_phone());
+            bean.setBind_phone(selectDeviceDetailBean.getBind_phone());
+            launchActivity(DeviceDetailActivity.newInstance(bean));
+        }
+    }
+
+    //设备是否处于离线状态
+    private boolean isStateLineDown(){
+        String state = MyApplication.getMyApp().getDeviceState();
+        if (state == null || state.length() == 0) return false;
+        return ResultDataUtils.Device_State_Line_Down.equals(state);
+    }
+    //设备是否处于在线状态
+    private boolean isStateLineOn(){
+        String state = MyApplication.getMyApp().getDeviceState();
+        if (state == null || state.length() == 0) return false;
+        return ResultDataUtils.Device_State_Line_On.equals(state);
+    }
+    
+    /**
+     * 一键功能提交
+     * @param key 功能值
+     */
+    private void onConfirmOneKeyFunction(String key){
+        AlertBean bean = new AlertBean();
+        bean.setTitle(getString(R.string.txt_tip));
+        switch (key){
+            case ResultDataUtils.Function_Restart:
+                bean.setAlert(getString(R.string.txt_restart_hint));
+                break;
+            case ResultDataUtils.Function_Sleep:
+                bean.setAlert(getString(R.string.txt_one_key_sleep));
+                break;
+            case ResultDataUtils.Function_Finddev:
+                bean.setAlert(getString(R.string.txt_looking_for_equipment));
+                break;
+            case ResultDataUtils.Function_Wakeup:
+                bean.setAlert(getString(R.string.txt_one_key_wakeup));
+                break;
+            case ResultDataUtils.Function_Reset:
+                bean.setAlert(getString(R.string.txt_reset_device_hint));
+                break;
+        }
+        bean.setType(0);
+        AlertAppDialog dialog = new AlertAppDialog();
+        dialog.show(getSupportFragmentManager(), bean, new AlertAppDialog.onAlertDialogChange() {
+            @Override
+            public void onConfirm() {
+                submitOneKeyFunction(key);
+            }
+
+            @Override
+            public void onCancel() {
+
+            }
+        });
+    }
+
+    /**
+     * 一键功能提交
+     * @param key 功能值
+     */
+    private void submitOneKeyFunction(String key){
+        OnKeyFunctionPutBean.ParamsBean paramsBean = new OnKeyFunctionPutBean.ParamsBean();
+        paramsBean.setType(key);
+        paramsBean.setSimei(mSimei);
+
+        OnKeyFunctionPutBean bean = new OnKeyFunctionPutBean();
+        bean.setParams(paramsBean);
+        bean.setFunc(ModuleValueService.Fuc_For_OnKey_Function);
+        bean.setModule(ModuleValueService.Module_For_OnKey_Function);
+
+        showProgressDialog();
+
+        getPresenter().submitOneKeyFunction(bean);
+    }
+
+    @Override
+    public void showLoading() {
+
+    }
+
+    @Override
+    public void hideLoading() {
+
+    }
+
+    @Override
+    public void showMessage(@NonNull String message) {
+        checkNotNull(message);
+        ArmsUtils.snackbarText(message);
+    }
+
+    @Override
+    public void launchActivity(@NonNull Intent intent) {
+        checkNotNull(intent);
+        ArmsUtils.startActivity(intent);
+    }
+
+    @Override
+    public void killMyself() {
+        finish();
+    }
+
+    @Override
+    public void getDeviceConfigSuccess(DeviceConfigResultBean deviceConfigResultBean) {
+        if (!Utils.isCN()) {
+            rl_operation_note.setVisibility(View.GONE);
+        }
+
+        rl_addservice.setVisibility((selectDeviceDetailBean.getIncrement() != null && selectDeviceDetailBean.getIncrement().size() > 0) ? View.VISIBLE : View.GONE);
+
+        remoteSwitch = deviceConfigResultBean.getRemoteswitch(); //远程开关机
+        onTimeSwitch = deviceConfigResultBean.getOntime_switch(); //定时开关机
+        if (deviceConfigResultBean.getMonitor() == 0) rl_remote_listening.setVisibility(View.GONE);
+        if (remoteSwitch != -1 || onTimeSwitch == 1){
+            rl_remote_switch.setVisibility(View.VISIBLE);
+        }
+        if (deviceConfigResultBean.getConfig().getCar_switch().getReplaystate() != -1) {
+            rl_oil_electric_control.setVisibility(View.VISIBLE);
+        }
+
+        if (deviceConfigResultBean.getCmd_type() != null) {
+            for (String string : deviceConfigResultBean.getCmd_type()) {
+                switch (string) {
+                    case ResultDataUtils.Function_Restart:
+                        isContainRestart = true;
+                        break;
+                    case ResultDataUtils.Function_Sleep:
+                        isContainSleep = true;
+                        break;
+                    case ResultDataUtils.Function_Wakeup:
+                        isContainWakeup = true;
+                        break;
+                    case ResultDataUtils.Function_Reset:
+                        isDevReset = true;
+                        break;
+                    case ResultDataUtils.Function_Finddev:
+                        isFindDev = true;
+                        break;
+                }
+            }
+        }
+        if (!isContainRestart) rl_one_key_restart.setVisibility(View.GONE);
+
+        isLineOn = isStateLineOn(); //在线状态
+        if (!isContainSleep && !isContainWakeup) {
+            rl_one_key_dormant.setVisibility(View.GONE);
+        } else {
+            mOneKeyDormant.setText(isLineOn ? R.string.txt_function_one_key_sleep : R.string.txt_function_one_key_wakeup);
+        }
+        if (!isDevReset) rl_factory_reset.setVisibility(View.GONE);
+        if (isFindDev) rl_looking_device.setVisibility(View.VISIBLE);
+
+        phoneAlarm = deviceConfigResultBean.getPhone_alarm(); //电话报警
+        //特殊报警设置
+        if (phoneAlarm == 1) {
+            rl_remote_listening.setVisibility(View.GONE);
+            rl_special.setVisibility(View.VISIBLE);
+        }
+
+        createGridView(deviceConfigResultBean);
+    }
+
+    public void createGridView(DeviceConfigResultBean deviceConfigResultBean) {
+        modeFunction = deviceConfigResultBean.getMode_fun();
+        protocol = deviceConfigResultBean.getProtocol();
+
+        functionBeans1.add(new DataCenterBean(11, getString(R.string.menu_2), R.drawable.icon_menu_1_1));
+        if (remoteSwitch != -1 || onTimeSwitch == 1) {
+            functionBeans1.add(new DataCenterBean(12, getString(R.string.menu_5), R.drawable.icon_menu_1_2));
+        }
+        functionBeans1.add(new DataCenterBean(13, getString(R.string.txt_penetrate), R.drawable.icon_menu_1_3));
+        if (deviceConfigResultBean.getMonitor() != 0 && phoneAlarm != 1) {
+            functionBeans1.add(new DataCenterBean(14, getString(R.string.txt_function_remote_listening), R.drawable.icon_menu_1_4));
+        }
+
+        if (selectDeviceDetailBean.getIncrement() != null && selectDeviceDetailBean.getIncrement().size() > 0) {
+            functionBeans2.add(new DataCenterBean(21, getString(R.string.menu_8), R.drawable.icon_menu_2_1));
+        }
+        functionBeans2.add(new DataCenterBean(22, getString(R.string.txt_device_detail), R.drawable.icon_menu_2_2));
+        functionBeans2.add(new DataCenterBean(23, getString(R.string.txt_function_mileage_statistics), R.drawable.icon_menu_2_4));
+        functionBeans2.add(new DataCenterBean(24, getString(R.string.menu_3), R.drawable.icon_menu_2_3));
+        if (Utils.isCN()) {
+            functionBeans2.add(new DataCenterBean(25, getString(R.string.txt_operation_record), R.drawable.icon_menu_2_5));
+        }
+        functionBeans2.add(new DataCenterBean(26, getString(R.string.txt_switch_device_icon), R.drawable.icon_menu_2_6));
+        if (phoneAlarm == 1) {
+            functionBeans2.add(new DataCenterBean(27, getString(R.string.txt_alarm_special_set), R.drawable.icon_menu_2_7));
+        }
+
+        if (isContainRestart) {
+            functionBeans3.add(new DataCenterBean(31, getString(R.string.txt_function_one_click_restart), R.drawable.icon_menu_3_1));
+        }
+        if (!isContainSleep && !isContainWakeup) {
+        } else {
+            int str = isLineOn ? R.string.txt_function_one_key_sleep : R.string.txt_function_one_key_wakeup;
+            functionBeans3.add(new DataCenterBean(32, getString(str), R.drawable.icon_menu_3_2));
+        }
+
+        if (isFindDev) {
+            functionBeans4.add(new DataCenterBean(41, getString(R.string.txt_function_looking_device), R.drawable.icon_menu_4_1));
+        }
+        if (deviceConfigResultBean.getConfig().getCar_switch().getReplaystate() != -1) {
+            functionBeans4.add(new DataCenterBean(42, getString(R.string.txt_function_oil_and_electricity_control), R.drawable.icon_menu_4_2));
+        }
+        functionBeans4.add(new DataCenterBean(43, getString(R.string.txt_function_fault_self_check), R.drawable.icon_menu_4_3));
+        if (isDevReset) {
+            functionBeans4.add(new DataCenterBean(44, getString(R.string.txt_order_ft), R.drawable.icon_menu_4_4));
+        }
+
+
+        if (mAdapter1 == null) {
+            mAdapter1 = new FunctionAdapter(this, R.layout.item_menu_home, functionBeans1);
+            gridViewMenu1.setAdapter(mAdapter1);
+            gridViewMenu1.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    if (Utils.isButtonQuickClick(System.currentTimeMillis())) {
+                        onMenuClick(functionBeans1.get(position).getId(), modeFunction);
+                    }
+                }
+            });
+        } else {
+            mAdapter1.notifyDataSetChanged();
+        }
+
+        if (mAdapter2 == null) {
+            mAdapter2 = new FunctionAdapter(this, R.layout.item_menu_home, functionBeans2);
+            gridViewMenu2.setAdapter(mAdapter2);
+            gridViewMenu2.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    if (Utils.isButtonQuickClick(System.currentTimeMillis())) {
+                        onMenuClick(functionBeans2.get(position).getId(), modeFunction);
+                    }
+                }
+            });
+        } else {
+            mAdapter2.notifyDataSetChanged();
+        }
+
+        if (mAdapter3 == null) {
+            mAdapter3 = new FunctionAdapter(this, R.layout.item_menu_home, functionBeans3);
+            gridViewMenu3.setAdapter(mAdapter3);
+            gridViewMenu3.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    if (Utils.isButtonQuickClick(System.currentTimeMillis())) {
+                        onMenuClick(functionBeans3.get(position).getId(), modeFunction);
+                    }
+                }
+            });
+        } else {
+            mAdapter3.notifyDataSetChanged();
+        }
+
+        if (mAdapter4 == null) {
+            mAdapter4 = new FunctionAdapter(this, R.layout.item_menu_home, functionBeans4);
+            gridViewMenu4.setAdapter(mAdapter4);
+            gridViewMenu4.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    if (Utils.isButtonQuickClick(System.currentTimeMillis())) {
+                        onMenuClick(functionBeans4.get(position).getId(), modeFunction);
+                    }
+                }
+            });
+        } else {
+            mAdapter4.notifyDataSetChanged();
+        }
+    }
+
+    private void onMenuClick(int id, String function) {
+        switch (id) {
+            case 11: //电子围栏
+                launchActivity(FenceActivity.newInstance());
+                break;
+            case 12: //远程开关
+                launchActivity(RemoteSwitchActivity.newInstance(remoteSwitch, onTimeSwitch));
+                break;
+            case 13: //透传
+                launchActivity(PenetrateActivity.newInstance());
+                break;
+            case 14: //SOS
+                launchActivity(ListeningListActivity.newInstance());
+                break;
+            case 21: //增值服务
+                launchActivity(PayWebViewActivity.newInstance(2, getString(R.string.menu_8), Api.Pay_Increment_Recharge + ConstantValue.getPayIncrementValue()));
+                break;
+            case 22: //设备详情
+                detailInfo();
+                break;
+            case 23: //里程统计
+                launchActivity(MileageStatisticsActivity.newInstance());
+                break;
+            case 24: //历史轨迹
+                isDeviceHistory();
+                break;
+            case 25: //操作记录
+                launchActivity(OperationRecordActivity.newInstance());
+                break;
+            case 26: //切换设备图标
+                launchActivity(IconCheckActivity.newInstance());
+                break;
+            case 27: //特殊报警
+                launchActivity(AlarmSetSpecialActivity.newInstance());
+                break;
+            case 31: //一键重启
+                onConfirmOneKeyFunction(ResultDataUtils.Function_Restart);
+                break;
+            case 32: //一键唤醒
+                if (isLineOn) {//在线
+                    onConfirmOneKeyFunction(ResultDataUtils.Function_Sleep);
+                } else {
+                    if (isStateLineDown()) { //离线
+                        ToastUtils.showShort(getString(R.string.txt_operation_can_not));
+                    } else { //休眠 静止
+                        onConfirmOneKeyFunction(ResultDataUtils.Function_Wakeup);
+                    }
+                }
+                break;
+            case 41: //寻找设备
+                if (isStateLineDown())
+                    ToastUtils.showShort(getString(R.string.txt_state_line_down_hint));
+                else
+                    onConfirmOneKeyFunction(ResultDataUtils.Function_Finddev);
+                break;
+            case 42: //油电控制
+                launchActivity(OilElectricityControlActivity.newInstance());
+                break;
+            case 43: //故障自检
+                BreakdownExamineDialog dialog = new BreakdownExamineDialog();
+                dialog.show(getSupportFragmentManager());
+                break;
+            case 44: //恢复出厂设置
+                onConfirmOneKeyFunction(ResultDataUtils.Function_Reset);
+                break;
+        }
+    }
+
+    @Override
+    public void submitOneKeyFunctionSuccess(BaseBean baseBean) {
+        ToastUtils.showShort(getString(R.string.txt_successful_operation));
+    }
+
+    @Override
+    public void onDismissProgress() {
+        dismissProgressDialog();
+    }
+}

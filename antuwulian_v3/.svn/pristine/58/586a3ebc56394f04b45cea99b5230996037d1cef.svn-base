@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/color_FFFFFF">
+
+    <TextView
+        android:id="@+id/tv_device_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_15"
+        android:layout_marginTop="@dimen/dp_10"
+        android:text="@string/txt_name"
+        android:textColor="@color/color_000000"
+        android:textSize="@dimen/sp_16" />
+
+    <TextView
+        android:id="@+id/tv_device_imei"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_device_name"
+        android:layout_marginBottom="@dimen/dp_10"
+        android:layout_marginStart="@dimen/dp_15"
+        android:layout_marginTop="@dimen/dp_10"
+        android:text="IMEI:"
+        android:textColor="@color/color_999999"
+        android:textSize="@dimen/sp_12" />
+
+    <TextView
+        android:id="@+id/tv_device_state"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/sp_13"
+        android:layout_centerVertical="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="@dimen/dp_15"
+        android:textColor="@color/color_1FC62E"
+        android:text="@string/txt_state_line_on"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/app_divider_p1"
+        android:layout_below="@+id/tv_device_imei"
+        android:background="@color/color_E5E5E5"
+        android:layout_marginStart="@dimen/dp_15"
+        android:layout_marginEnd="@dimen/dp_15"
+        />
+
+</RelativeLayout>

@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/transparent">
+
+    <ImageView
+        android:id="@+id/iv_search"
+        android:layout_width="@dimen/dp_33"
+        android:layout_height="@dimen/dp_33"
+        android:layout_marginTop="@dimen/dp_20"
+        android:layout_marginStart="@dimen/dp_10"
+        android:src="@drawable/icon_search_location"/>
+
+    <ImageView
+        android:id="@+id/iv_device_list"
+        android:layout_width="@dimen/dp_33"
+        android:layout_height="@dimen/dp_33"
+        android:layout_marginTop="@dimen/dp_10"
+        android:layout_marginStart="@dimen/dp_10"
+        android:layout_below="@+id/iv_search"
+        android:visibility="gone"
+        android:src="@drawable/icon_device_list"/>
+
+    <ImageView
+        android:id="@+id/iv_refresh"
+        android:layout_width="@dimen/dp_33"
+        android:layout_height="@dimen/dp_33"
+        android:layout_marginTop="@dimen/dp_10"
+        android:layout_marginStart="@dimen/dp_10"
+        android:layout_below="@+id/iv_device_list"
+        android:src="@drawable/icon_refresh"/>
+
+    <ImageView
+        android:id="@+id/iv_map_check"
+        android:layout_width="@dimen/dp_33"
+        android:layout_height="@dimen/dp_33"
+        android:layout_marginTop="@dimen/dp_20"
+        android:layout_marginEnd="@dimen/dp_10"
+        android:layout_alignParentEnd="true"
+        android:src="@drawable/icon_check_map"/>
+
+    <ImageView
+        android:id="@+id/iv_traffic"
+        android:layout_width="@dimen/dp_33"
+        android:layout_height="@dimen/dp_33"
+        android:layout_marginTop="@dimen/dp_10"
+        android:layout_marginEnd="@dimen/dp_10"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/iv_map_check"
+        android:src="@drawable/icon_road_condition"/>
+
+    <ImageView
+        android:id="@+id/iv_panorama"
+        android:layout_width="@dimen/dp_33"
+        android:layout_height="@dimen/dp_33"
+        android:layout_marginTop="@dimen/dp_10"
+        android:layout_marginEnd="@dimen/dp_10"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/iv_traffic"
+        android:src="@drawable/icon_panorama"/>
+
+    <LinearLayout
+        android:id="@+id/ll_location_now"
+        android:layout_width="@dimen/dp_40"
+        android:layout_height="@dimen/dp_40"
+        android:orientation="vertical"
+        android:background="@drawable/bg_ffffff_5"
+        android:layout_marginTop="@dimen/dp_10"
+        android:layout_marginEnd="@dimen/dp_10"
+        android:layout_below="@+id/iv_panorama"
+        android:layout_alignParentEnd="true">
+
+        <ImageView
+            android:layout_width="@dimen/dp_20"
+            android:layout_height="@dimen/dp_20"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/dp_4"
+            android:src="@drawable/icon_location_immediately"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/sp_7"
+            android:layout_marginTop="@dimen/dp_2"
+            android:layout_gravity="center_horizontal"
+            android:textColor="@color/color_2E7BEC"
+            android:text="@string/txt_location_now"/>
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/iv_car_people"
+        android:layout_width="@dimen/dp_33"
+        android:layout_height="@dimen/dp_33"
+        android:layout_marginStart="@dimen/dp_10"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="@dimen/dp_100"
+        android:src="@mipmap/icon_switch_car"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_alignParentBottom="true">
+
+   <include layout="@layout/layout_device_info" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_keyword_search"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:background="@color/color_F5F5F5">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_50"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@color/color_FFFFFF">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="@dimen/dp_30"
+                android:orientation="horizontal"
+                android:layout_marginStart="@dimen/dp_15"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_eaeaea_15">
+
+                <ImageView
+                    android:layout_width="@dimen/dp_17"
+                    android:layout_height="@dimen/dp_16"
+                    android:src="@drawable/icon_search"
+                    android:layout_marginStart="@dimen/dp_15"/>
+
+                <EditText
+                    android:id="@+id/edt_keyword"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:lines="1"
+                    android:layout_marginStart="@dimen/dp_10"
+                    android:layout_marginEnd="@dimen/dp_10"
+                    android:background="@color/transparent"
+                    android:textSize="@dimen/sp_13"
+                    android:textColor="@color/color_000000"
+                    android:textColorHint="@color/color_999999"
+                    android:hint="@string/txt_edit_hint"/>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tv_cancel"
+                android:layout_width="@dimen/dp_80"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:textSize="@dimen/sp_15"
+                android:textColorHint="@color/color_333333"
+                android:text="@string/txt_cancel"/>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_1"
+            android:background="@color/color_E5E5E5"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView_search"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/dp_10"/>
+    </LinearLayout>
+
+</RelativeLayout>

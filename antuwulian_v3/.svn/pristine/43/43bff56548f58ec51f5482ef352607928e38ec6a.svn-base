@@ -1,0 +1,438 @@
+package com.slxk.gpsantu.mvp.ui.activity;
+
+import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.amap.api.services.core.LatLonPoint;
+import com.amap.api.services.core.PoiItem;
+import com.amap.api.services.geocoder.GeocodeResult;
+import com.amap.api.services.geocoder.GeocodeSearch;
+import com.amap.api.services.geocoder.RegeocodeQuery;
+import com.amap.api.services.geocoder.RegeocodeResult;
+import com.amap.api.services.geocoder.RegeocodeRoad;
+import com.baidu.mapapi.search.core.SearchResult;
+import com.baidu.mapapi.search.geocode.GeoCodeResult;
+import com.baidu.mapapi.search.geocode.GeoCoder;
+import com.baidu.mapapi.search.geocode.OnGetGeoCoderResultListener;
+import com.baidu.mapapi.search.geocode.ReverseGeoCodeOption;
+import com.baidu.mapapi.search.geocode.ReverseGeoCodeResult;
+import com.baidu.mapapi.utils.SpatialRelationUtil;
+import com.blankj.utilcode.util.SPUtils;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.jess.arms.base.BaseActivity;
+import com.jess.arms.di.component.AppComponent;
+import com.jess.arms.utils.ArmsUtils;
+
+import com.slxk.gpsantu.app.MyApplication;
+import com.slxk.gpsantu.di.component.DaggerNavigationGoogleComponent;
+import com.slxk.gpsantu.mvp.contract.NavigationGoogleContract;
+import com.slxk.gpsantu.mvp.model.bean.DeviceLocationInfoBean;
+import com.slxk.gpsantu.mvp.presenter.NavigationGooglePresenter;
+
+import com.slxk.gpsantu.R;
+import com.slxk.gpsantu.mvp.utils.BitmapHelperGoogle;
+import com.slxk.gpsantu.mvp.utils.ConstantValue;
+import com.slxk.gpsantu.mvp.utils.DeviceUtils;
+import com.slxk.gpsantu.mvp.utils.GoogleLocationUtils;
+import com.slxk.gpsantu.mvp.utils.GoogleMapUtils;
+import com.slxk.gpsantu.mvp.utils.GpsUtils;
+import com.slxk.gpsantu.mvp.utils.LocationAddress;
+import com.slxk.gpsantu.mvp.utils.LocationGoogleAddress;
+import com.slxk.gpsantu.mvp.utils.PolygonalArea;
+import com.slxk.gpsantu.mvp.utils.ResultDataUtils;
+import com.slxk.gpsantu.mvp.utils.Utils;
+import com.slxk.gpsantu.mvp.weiget.NavigationDialog;
+
+
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
+import static com.jess.arms.utils.Preconditions.checkNotNull;
+
+
+/**
+ * ================================================
+ * Description:
+ * <p>
+ * Created by MVPArmsTemplate on 09/09/2021 15:24
+ * <a href="mailto:jess.yan.effort@gmail.com">Contact me</a>
+ * <a href="https://github.com/JessYanCoding">Follow me</a>
+ * <a href="https://github.com/JessYanCoding/MVPArms">Star me</a>
+ * <a href="https://github.com/JessYanCoding/MVPArms/wiki">See me</a>
+ * <a href="https://github.com/JessYanCoding/MVPArmsTemplate">模版请保持更新</a>
+ * ================================================
+ */
+public class NavigationGoogleActivity extends BaseActivity<NavigationGooglePresenter> implements NavigationGoogleContract.View,
+        OnMapReadyCallback {
+
+    @BindView(R.id.tv_distance)
+    TextView tvDistance;
+    @BindView(R.id.tv_address)
+    TextView tvAddress;
+
+    private double deviceLatitude = 0; // 设备纬度
+    private double deviceLongitude = 0; // 设备经度
+    private String deviceState; // 设备状态
+
+    private GoogleMap mGoogleMap;
+    private Marker myLocationMarker;
+    private float mZoom = 15;
+    private LatLng userLocation = new LatLng(39.90923, 116.397428);
+    private LatLng carLocation;
+    private String mLocInfo; // 设备定位的一些信息
+    private float mDirection = 0;// 方向
+    private int size;
+    private BitmapHelperGoogle bitmapHelperGoogle;
+    private int carImageId; // 设备图标id
+    private LatLngBounds.Builder builder;
+
+    public static Intent newInstance() {
+        return new Intent(MyApplication.getMyApp(), NavigationGoogleActivity.class);
+    }
+
+    @Override
+    public void setupActivityComponent(@NonNull AppComponent appComponent) {
+        DaggerNavigationGoogleComponent.builder()
+                .appComponent(appComponent)
+                .view(this)
+                .build()
+                .inject(this);
+    }
+
+    @Override
+    public int initView(@Nullable Bundle savedInstanceState) {
+        return R.layout.activity_navigation_google;//setContentView(id);
+    }
+
+    @SuppressLint("SetTextI18n")
+    @Override
+    public void initData(@Nullable Bundle savedInstanceState) {
+        setTitle(getString(R.string.txt_function_navigation));
+        MyApplication.getMMKVUtils().put(ConstantValue.ACTIVITY_STATUS, false);
+        carImageId = MyApplication.getMyApp().getCarImageId();
+        mLocInfo = MyApplication.getMyApp().getLocInfo();
+        if (!TextUtils.isEmpty(mLocInfo)){
+            DeviceLocationInfoBean infoBean = DeviceUtils.parseDeviceData(mLocInfo);
+            mDirection = infoBean.getDirection();
+        }
+        deviceState = MyApplication.getMyApp().getDeviceState();
+        builder = new LatLngBounds.Builder();
+        if (!TextUtils.isEmpty(MyApplication.getMyApp().getLatAndLon())){
+            String[] location = MyApplication.getMyApp().getLatAndLon().split(",");
+            deviceLatitude = (double) Long.parseLong(location[0]) / 1000000;
+            deviceLongitude = (double) Long.parseLong(location[1]) / 1000000;
+        }
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().
+                findFragmentById(R.id.mapView);
+        Objects.requireNonNull(mapFragment).getMapAsync(this);
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void initViews(){
+        bitmapHelperGoogle = new BitmapHelperGoogle(this);
+        carLocation = GpsUtils.googleGPSConverter(deviceLatitude, deviceLongitude);
+        builder.include(carLocation);
+
+        // 判断当前点的经纬度是否在中国范围内的经纬度多边形内，判断国内和海外
+        boolean isChina; // 是否在国内
+        com.baidu.mapapi.model.LatLng latLng = new com.baidu.mapapi.model.LatLng(deviceLatitude, deviceLongitude);
+        isChina = SpatialRelationUtil.isPolygonContainsPoint(PolygonalArea.getBaiduListPoint(), latLng);
+        if (isChina) {
+            new LocationAddress().Parsed(deviceLatitude, deviceLongitude)
+                    .setAddressListener(str -> {
+                        if (tvAddress == null) return;
+                        if (!TextUtils.isEmpty(str)) {
+                            tvAddress.setText(str);
+                        } else {
+                            tvAddress.setText(deviceLatitude + "," + deviceLongitude);
+                        }
+                    });
+        } else {
+            String address = new LocationGoogleAddress().Parsed(deviceLatitude, deviceLongitude);
+            if (tvAddress == null) return;
+            if (!TextUtils.isEmpty(address)) {
+                tvAddress.setText(address);
+            } else {
+                tvAddress.setText(deviceLatitude + "," + deviceLongitude);
+            }
+        }
+
+        MarkerOptions markerOption = new MarkerOptions();
+        markerOption.position(carLocation);
+        markerOption.icon(getMarkerIcon());
+        markerOption.anchor(0.5f, 1);
+        markerOption.draggable(false);
+        markerOption.visible(true);
+        mGoogleMap.addMarker(markerOption);
+    }
+
+    @Override
+    public void onMapReady(@NonNull GoogleMap googleMap) {
+        mGoogleMap = googleMap;
+        mGoogleMap.getUiSettings().setRotateGesturesEnabled(false);//选择手势
+        mGoogleMap.getUiSettings().setZoomControlsEnabled(false);//缩放按钮
+        mGoogleMap.getUiSettings().setMyLocationButtonEnabled(true);
+
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(userLocation)      // Sets the center of the map to Mountain View
+                .zoom(mZoom)                   // Sets the zoom
+                .bearing(0)                // Sets the orientation of the camera to east
+                .tilt(0)                  // Sets the tilt of the camera to 30 degrees
+                .build();
+        mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        initViews();
+        getLocation(true);
+    }
+
+    /**
+     * 定位
+     */
+    public void getLocation(boolean isFirst) {
+        String ll = GoogleLocationUtils.getLocation(this);
+        if (!TextUtils.isEmpty(ll)) {
+            String[] location = ll.split(",");
+            userLocation = GoogleMapUtils.getGoogleLocation(location[0], location[1]);
+            if (userLocation != null) {
+                addMyLocalMaker(userLocation, isFirst);
+            }
+        }
+    }
+
+    /**
+     * 将我的位置的坐标添加进去
+     *
+     * @param location 我的位置经纬度
+     * @param isFirst  是否是首次定位手机位置
+     */
+    @SuppressLint("SetTextI18n")
+    private void addMyLocalMaker(LatLng location, boolean isFirst) {
+        builder.include(location);
+        if (location.latitude != 0 && location.longitude != 0 && mGoogleMap != null) {
+            if (myLocationMarker != null) {
+                myLocationMarker.setPosition(location);
+            } else {
+                myLocationMarker = mGoogleMap.addMarker(new MarkerOptions().position(location)
+                        .icon(bitmapHelperGoogle.getBitmapZoomForUserLocation(mZoom)));
+            }
+            if (isFirst) {
+                mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, mZoom));
+            }
+
+            double distance = GoogleMapUtils.toRadiusMeters(location, carLocation);
+            calcuteSize(distance);
+            if (distance >= 1000) {
+                tvDistance.setText(Utils.formatValue(distance / 1000) + "km");
+            } else {
+                tvDistance.setText(Utils.formatValue(distance) + getString(R.string.txt_meter));
+            }
+        }
+        tvAddress.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), size));
+            }
+        }, 500);
+    }
+
+    /**
+     * 计算地图缩放距离边距距离
+     *
+     * @param distance 两经纬度之间的距离
+     */
+    private void calcuteSize(double distance) {
+        if (distance <= 5000) {
+            size = 200;
+        } else if (distance > 5000 && distance <= 10000) {
+            size = 230;
+        } else if (distance > 10000 && distance < 1000000) {
+            size = 250;
+        } else if (distance > 100000 && distance < 500000) {
+            size = 270;
+        } else if (distance > 500000 && distance < 1000000) {
+            size = 300;
+        } else if (distance > 1000000) {
+            size = 350;
+        }
+    }
+
+    @Override
+    public void showMessage(@NonNull String message) {
+        checkNotNull(message);
+        ArmsUtils.snackbarText(message);
+    }
+
+    @Override
+    public void launchActivity(@NonNull Intent intent) {
+        checkNotNull(intent);
+        ArmsUtils.startActivity(intent);
+    }
+
+    @Override
+    public void killMyself() {
+        finish();
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // TODO: add setContentView(...) invocation
+        ButterKnife.bind(this);
+    }
+
+    @OnClick(R.id.ll_navigation)
+    public void onViewClicked() {
+        NavigationDialog dialog = new NavigationDialog();
+        dialog.show(getSupportFragmentManager(), String.valueOf(deviceLatitude), String.valueOf(deviceLongitude));
+    }
+
+    /**
+     * 绘制设备图标等信息
+     *
+     * @return
+     */
+    private BitmapDescriptor getMarkerIcon() {
+        View view = View.inflate(this, R.layout.layout_marker_navigation, null);
+        ImageView ivCar = view.findViewById(R.id.iv_car);
+        getDeviceState(ivCar);
+        return convertViewToBitmap(view);
+    }
+
+    private static BitmapDescriptor convertViewToBitmap(View view) {
+        view.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+        view.layout(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight());
+        view.buildDrawingCache();
+        return BitmapDescriptorFactory.fromBitmap(view.getDrawingCache());
+    }
+
+    private void getDeviceState(ImageView ivView) {
+        if (ResultDataUtils.Device_State_Line_On.equals(deviceState)) {
+            switch (carImageId) {
+                case 0:
+                    ivView.setImageResource(R.mipmap.icon_car_online);
+                    break;
+                case 1:
+                    ivView.setImageResource(R.mipmap.icon_car_online_1);
+                    break;
+                case 2:
+                    ivView.setImageResource(R.mipmap.icon_car_online_2);
+                    break;
+                case 3:
+                    ivView.setImageResource(R.mipmap.icon_car_online_3);
+                    break;
+                case 4:
+                    ivView.setImageResource(R.mipmap.icon_car_online_4);
+                    break;
+                case 5:
+                    ivView.setImageResource(R.mipmap.icon_car_online_5);
+                    break;
+                case 6:
+                    ivView.setImageResource(R.mipmap.icon_car_online_6);
+                    break;
+                case 7:
+                    ivView.setImageResource(R.mipmap.icon_car_online_7);
+                    break;
+                case 8:
+                    ivView.setImageResource(R.mipmap.icon_car_online_8);
+                    break;
+                case 9:
+                    ivView.setImageResource(R.mipmap.icon_car_online_9);
+                    break;
+            }
+        } else if (ResultDataUtils.Device_State_Line_Sleep.equals(deviceState)) {
+            switch (carImageId) {
+                case 0:
+                    ivView.setImageResource(R.mipmap.icon_car_sleep);
+                    break;
+                case 1:
+                    ivView.setImageResource(R.mipmap.icon_car_sleep_1);
+                    break;
+                case 2:
+                    ivView.setImageResource(R.mipmap.icon_car_sleep_2);
+                    break;
+                case 3:
+                    ivView.setImageResource(R.mipmap.icon_car_sleep_3);
+                    break;
+                case 4:
+                    ivView.setImageResource(R.mipmap.icon_car_sleep_4);
+                    break;
+                case 5:
+                    ivView.setImageResource(R.mipmap.icon_car_sleep_5);
+                    break;
+                case 6:
+                    ivView.setImageResource(R.mipmap.icon_car_sleep_6);
+                    break;
+                case 7:
+                    ivView.setImageResource(R.mipmap.icon_car_sleep_7);
+                    break;
+                case 8:
+                    ivView.setImageResource(R.mipmap.icon_car_sleep_8);
+                    break;
+                case 9:
+                    ivView.setImageResource(R.mipmap.icon_car_sleep_9);
+                    break;
+            }
+        } else {
+            switch (carImageId) {
+                case 0:
+                    ivView.setImageResource(R.mipmap.icon_car_offline);
+                    break;
+                case 1:
+                    ivView.setImageResource(R.mipmap.icon_car_offline_1);
+                    break;
+                case 2:
+                    ivView.setImageResource(R.mipmap.icon_car_offline_2);
+                    break;
+                case 3:
+                    ivView.setImageResource(R.mipmap.icon_car_offline_3);
+                    break;
+                case 4:
+                    ivView.setImageResource(R.mipmap.icon_car_offline_4);
+                    break;
+                case 5:
+                    ivView.setImageResource(R.mipmap.icon_car_offline_5);
+                    break;
+                case 6:
+                    ivView.setImageResource(R.mipmap.icon_car_offline_6);
+                    break;
+                case 7:
+                    ivView.setImageResource(R.mipmap.icon_car_offline_7);
+                    break;
+                case 8:
+                    ivView.setImageResource(R.mipmap.icon_car_offline_8);
+                    break;
+                case 9:
+                    ivView.setImageResource(R.mipmap.icon_car_offline_9);
+                    break;
+            }
+        }
+        if (carImageId == 0 || carImageId == 1 || carImageId == 2) {
+            ivView.setRotation(mDirection);//旋转
+        }
+    }
+
+}

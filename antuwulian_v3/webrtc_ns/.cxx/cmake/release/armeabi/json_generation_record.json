@@ -1,0 +1,140 @@
+[
+  {
+    "level": "INFO",
+    "message": "Start JSON generation. Platform version: 19 min SDK version: armeabi",
+    "file": "/Users/lixiang/Desktop/信春项目/Android/antuwulian_v3/webrtc_ns/CMakeLists.txt",
+    "tag": "release|armeabi"
+  },
+  {
+    "level": "INFO",
+    "message": "No CMake version was specified in build.gradle. Using default version 3.10.2.",
+    "file": "/Users/lixiang/Desktop/信春项目/Android/antuwulian_v3/webrtc_ns/CMakeLists.txt",
+    "tag": "release|armeabi"
+  },
+  {
+    "level": "INFO",
+    "message": "Trying to locate CMake in local SDK repository.",
+    "file": "/Users/lixiang/Desktop/信春项目/Android/antuwulian_v3/webrtc_ns/CMakeLists.txt",
+    "tag": "release|armeabi"
+  },
+  {
+    "level": "INFO",
+    "message": "Parsing /Users/lixiang/Library/Android/sdk/build-tools/28.0.3/package.xml",
+    "file": "/Users/lixiang/Desktop/信春项目/Android/antuwulian_v3/webrtc_ns/CMakeLists.txt",
+    "tag": "release|armeabi"
+  },
+  {
+    "level": "INFO",
+    "message": "Parsing /Users/lixiang/Library/Android/sdk/build-tools/29.0.2/package.xml",
+    "file": "/Users/lixiang/Desktop/信春项目/Android/antuwulian_v3/webrtc_ns/CMakeLists.txt",
+    "tag": "release|armeabi"
+  },
+  {
+    "level": "INFO",
+    "message": "Parsing /Users/lixiang/Library/Android/sdk/build-tools/29.0.3/package.xml",
+    "file": "/Users/lixiang/Desktop/信春项目/Android/antuwulian_v3/webrtc_ns/CMakeLists.txt",
+    "tag": "release|armeabi"
+  },
+  {
+    "level": "INFO",
+    "message": "Parsing /Users/lixiang/Library/Android/sdk/build-tools/30.0.0/package.xml",
+    "file": "/Users/lixiang/Desktop/信春项目/Android/antuwulian_v3/webrtc_ns/CMakeLists.txt",
+    "tag": "release|armeabi"
+  },
+  {
+    "level": "INFO",
+    "message": "Parsing /Users/lixiang/Library/Android/sdk/build-tools/33.0.0/package.xml",
+    "file": "/Users/lixiang/Desktop/信春项目/Android/antuwulian_v3/webrtc_ns/CMakeLists.txt",
+    "tag": "release|armeabi"
+  },
+  {
+    "level": "INFO",
+    "message": "Parsing /Users/lixiang/Library/Android/sdk/cmake/3.10.2.4988404/package.xml",
+    "file": "/Users/lixiang/Desktop/信春项目/Android/antuwulian_v3/webrtc_ns/CMakeLists.txt",
+    "tag": "release|armeabi"
+  },
+  {
+    "level": "INFO",
+    "message": "Parsing /Users/lixiang/Library/Android/sdk/emulator/package.xml",
+    "file": "/Users/lixiang/Desktop/信春项目/Android/antuwulian_v3/webrtc_ns/CMakeLists.txt",
+    "tag": "release|armeabi"
+  },
+  {
+    "level": "INFO",
+    "message": "Parsing /Users/lixiang/Library/Android/sdk/extras/intel/Hardware_Accelerated_Execution_Manager/package.xml",
+    "file": "/Users/lixiang/Desktop/信春项目/Android/antuwulian_v3/webrtc_ns/CMakeLists.txt",
+    "tag": "release|armeabi"
+  },
+  {
+    "level": "INFO",
+    "message": "Parsing /Users/lixiang/Library/Android/sdk/ndk-bundle/package.xml",
+    "file": "/Users/lixiang/Desktop/信春项目/Android/antuwulian_v3/webrtc_ns/CMakeLists.txt",
+    "tag": "release|armeabi"
+  },
+  {
+    "level": "INFO",
+    "message": "Parsing /Users/lixiang/Library/Android/sdk/patcher/v4/package.xml",
+    "file": "/Users/lixiang/Desktop/信春项目/Android/antuwulian_v3/webrtc_ns/CMakeLists.txt",
+    "tag": "release|armeabi"
+  },
+  {
+    "level": "INFO",
+    "message": "Parsing /Users/lixiang/Library/Android/sdk/platform-tools/package.xml",
+    "file": "/Users/lixiang/Desktop/信春项目/Android/antuwulian_v3/webrtc_ns/CMakeLists.txt",
+    "tag": "release|armeabi"
+  },
+  {
+    "level": "INFO",
+    "message": "Parsing /Users/lixiang/Library/Android/sdk/platforms/android-28/package.xml",
+    "file": "/Users/lixiang/Desktop/信春项目/Android/antuwulian_v3/webrtc_ns/CMakeLists.txt",
+    "tag": "release|armeabi"
+  },
+  {
+    "level": "INFO",
+    "message": "Parsing /Users/lixiang/Library/Android/sdk/platforms/android-29/package.xml",
+    "file": "/Users/lixiang/Desktop/信春项目/Android/antuwulian_v3/webrtc_ns/CMakeLists.txt",
+    "tag": "release|armeabi"
+  },
+  {
+    "level": "INFO",
+    "message": "Parsing /Users/lixiang/Library/Android/sdk/platforms/android-30/package.xml",
+    "file": "/Users/lixiang/Desktop/信春项目/Android/antuwulian_v3/webrtc_ns/CMakeLists.txt",
+    "tag": "release|armeabi"
+  },
+  {
+    "level": "INFO",
+    "message": "Parsing /Users/lixiang/Library/Android/sdk/platforms/android-33/package.xml",
+    "file": "/Users/lixiang/Desktop/信春项目/Android/antuwulian_v3/webrtc_ns/CMakeLists.txt",
+    "tag": "release|armeabi"
+  },
+  {
+    "level": "INFO",
+    "message": "Parsing /Users/lixiang/Library/Android/sdk/system-images/android-29/google_apis_playstore/x86/package.xml",
+    "file": "/Users/lixiang/Desktop/信春项目/Android/antuwulian_v3/webrtc_ns/CMakeLists.txt",
+    "tag": "release|armeabi"
+  },
+  {
+    "level": "INFO",
+    "message": "Parsing /Users/lixiang/Library/Android/sdk/tools/package.xml",
+    "file": "/Users/lixiang/Desktop/信春项目/Android/antuwulian_v3/webrtc_ns/CMakeLists.txt",
+    "tag": "release|armeabi"
+  },
+  {
+    "level": "INFO",
+    "message": "- CMake found in SDK at \u0027/Users/lixiang/Library/Android/sdk/cmake/3.10.2.4988404\u0027 had version \u00273.10.2\u0027",
+    "file": "/Users/lixiang/Desktop/信春项目/Android/antuwulian_v3/webrtc_ns/CMakeLists.txt",
+    "tag": "release|armeabi"
+  },
+  {
+    "level": "INFO",
+    "message": "JSON \u0027/Users/lixiang/Desktop/信春项目/Android/antuwulian_v3/webrtc_ns/.cxx/cmake/release/armeabi/android_gradle_build.json\u0027 was up-to-date",
+    "file": "/Users/lixiang/Desktop/信春项目/Android/antuwulian_v3/webrtc_ns/CMakeLists.txt",
+    "tag": "release|armeabi"
+  },
+  {
+    "level": "INFO",
+    "message": "JSON generation completed without problems",
+    "file": "/Users/lixiang/Desktop/信春项目/Android/antuwulian_v3/webrtc_ns/CMakeLists.txt",
+    "tag": "release|armeabi"
+  }
+]

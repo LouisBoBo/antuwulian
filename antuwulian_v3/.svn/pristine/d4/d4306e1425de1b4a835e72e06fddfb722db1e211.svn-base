@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://sp_chemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_15"
+        android:layout_marginTop="@dimen/dp_15"
+        android:layout_marginBottom="@dimen/dp_10"
+        android:text="@string/txt_map_type"
+        android:textColor="@color/color_666666"
+        android:textSize="@dimen/sp_12" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/color_FFFFFF"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:id="@+id/ll_general"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_10"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:layout_width="@dimen/dp_92"
+                android:layout_height="@dimen/dp_59"
+                android:layout_marginTop="@dimen/dp_13">
+
+                <ImageView
+                    android:id="@+id/iv_general_map"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/icon_general_map" />
+
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/tv_general_map"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_10"
+                android:layout_marginBottom="@dimen/dp_13"
+                android:text="@string/txt_map_2d"
+                android:textColor="@color/color_2E7BEC"
+                android:textSize="@dimen/sp_13" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_satellite"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/dp_10"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:layout_width="@dimen/dp_92"
+                android:layout_height="@dimen/dp_59"
+                android:layout_marginTop="@dimen/dp_13">
+
+                <ImageView
+                    android:id="@+id/iv_satellite_map"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/icon_satellite_map" />
+
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/tv_satellite_map"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_10"
+                android:layout_marginBottom="@dimen/dp_13"
+                android:text="@string/txt_map_satellite"
+                android:textColor="@color/color_333333"
+                android:textSize="@dimen/sp_13" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_15"
+        android:layout_marginTop="@dimen/dp_15"
+        android:layout_marginBottom="@dimen/dp_10"
+        android:text="@string/txt_map_select"
+        android:textColor="@color/color_666666"
+        android:textSize="@dimen/sp_12" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/color_FFFFFF"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:id="@+id/ll_amap_map"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_10"
+            android:layout_marginTop="@dimen/dp_13"
+            android:layout_marginBottom="@dimen/dp_13"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:layout_width="@dimen/dp_55"
+                android:layout_height="@dimen/dp_55">
+
+                <ImageView
+                    android:id="@+id/iv_map_amap"
+                    android:layout_width="@dimen/dp_47"
+                    android:layout_height="@dimen/dp_47"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/icon_map_amap" />
+
+                <ImageView
+                    android:id="@+id/iv_amap_select"
+                    android:layout_width="@dimen/dp_17"
+                    android:layout_height="@dimen/dp_17"
+                    android:layout_alignParentEnd="true"
+                    android:src="@drawable/icon_select"
+                    android:visibility="gone" />
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/tv_map_amap"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_10"
+                android:text="@string/txt_map_amap"
+                android:textColor="@color/color_2E7BEC"
+                android:textSize="@dimen/sp_13" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_baidu_map"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_13"
+            android:layout_marginBottom="@dimen/dp_13"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:layout_width="@dimen/dp_55"
+                android:layout_height="@dimen/dp_55">
+
+                <ImageView
+                    android:id="@+id/iv_map_baidu"
+                    android:layout_width="@dimen/dp_47"
+                    android:layout_height="@dimen/dp_47"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/icon_map_baidu" />
+
+                <ImageView
+                    android:id="@+id/iv_baidu_select"
+                    android:layout_width="@dimen/dp_17"
+                    android:layout_height="@dimen/dp_17"
+                    android:layout_alignParentEnd="true"
+                    android:src="@drawable/icon_select"
+                    android:visibility="gone" />
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/tv_map_baidu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_10"
+                android:text="@string/txt_map_baidu"
+                android:textColor="@color/color_333333"
+                android:textSize="@dimen/sp_13" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_google_map"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_13"
+            android:layout_marginEnd="@dimen/dp_10"
+            android:layout_marginBottom="@dimen/dp_13"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:layout_width="@dimen/dp_55"
+                android:layout_height="@dimen/dp_55">
+
+                <ImageView
+                    android:id="@+id/iv_map_google"
+                    android:layout_width="@dimen/dp_47"
+                    android:layout_height="@dimen/dp_47"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/icon_map_google" />
+
+                <ImageView
+                    android:id="@+id/iv_google_select"
+                    android:layout_width="@dimen/dp_17"
+                    android:layout_height="@dimen/dp_17"
+                    android:layout_alignParentEnd="true"
+                    android:src="@drawable/icon_select"
+                    android:visibility="gone" />
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/tv_map_google"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_10"
+                android:text="@string/txt_map_google"
+                android:textColor="@color/color_333333"
+                android:textSize="@dimen/sp_13" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center">
+
+    <TextView
+        android:id="@+id/tv_name"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/dp_32"
+        android:background="@mipmap/icon_online_bg"
+        android:ellipsize="end"
+        android:gravity="center_horizontal"
+        android:maxWidth="@dimen/dp_130"
+        android:maxLines="1"
+        android:paddingStart="@dimen/dp_8"
+        android:paddingTop="@dimen/dp_5"
+        android:paddingEnd="@dimen/dp_8"
+        android:text="12345678"
+        android:textColor="@color/color_1FC62E"
+        android:textSize="@dimen/sp_12" />
+
+    <ImageView
+        android:id="@+id/iv_car"
+        android:layout_width="@dimen/dp_33"
+        android:layout_height="@dimen/dp_33"
+        android:layout_marginTop="@dimen/dp_2"
+        android:src="@mipmap/icon_car_online"/>
+
+</LinearLayout>

@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include layout="@layout/include_title" />
+
+    <View
+        android:id="@+id/view_title"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/color_E5E5E5" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_40">
+
+        <TextView
+            android:id="@+id/tv_before_day"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="@dimen/dp_30"
+            android:drawableStart="@drawable/icon_left"
+            android:drawablePadding="@dimen/dp_15"
+            android:gravity="center_vertical"
+            android:text="@string/txt_before_day"
+            android:textColor="@color/color_666666"
+            android:textSize="@dimen/sp_13" />
+
+        <TextView
+            android:id="@+id/tv_data"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_centerHorizontal="true"
+            android:gravity="center_vertical"
+            android:text=""
+            android:textColor="@color/color_2E7BEC"
+            android:textSize="@dimen/sp_16" />
+
+        <TextView
+            android:id="@+id/tv_after_day"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="@dimen/dp_30"
+            android:drawableEnd="@drawable/icon_right"
+            android:drawablePadding="@dimen/dp_15"
+            android:gravity="center_vertical"
+            android:text="@string/txt_after_day"
+            android:textColor="@color/color_666666"
+            android:textSize="@dimen/sp_13" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <fragment
+            android:id="@+id/mapView"
+            class="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <LinearLayout
+            android:id="@+id/ll_start_end_time"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/dp_30"
+            android:layout_marginStart="@dimen/dp_15"
+            android:layout_marginTop="@dimen/dp_15"
+            android:background="@drawable/bg_ffffff_30_2"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp_10"
+                android:text="@string/txt_start"
+                android:textColor="@color/color_333333"
+                android:textSize="@dimen/sp_12" />
+
+            <TextView
+                android:id="@+id/tv_start_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp_7"
+                android:text=""
+                android:textColor="@color/color_333333"
+                android:textSize="@dimen/sp_12" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp_10"
+                android:text="@string/txt_end"
+                android:textColor="@color/color_333333"
+                android:textSize="@dimen/sp_12" />
+
+            <TextView
+                android:id="@+id/tv_end_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp_7"
+                android:layout_marginEnd="@dimen/dp_10"
+                android:text=""
+                android:textColor="@color/color_333333"
+                android:textSize="@dimen/sp_12" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/iv_map_check"
+            android:layout_width="@dimen/dp_33"
+            android:layout_height="@dimen/dp_33"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="@dimen/dp_15"
+            android:layout_marginEnd="@dimen/dp_10"
+            android:src="@drawable/icon_check_map" />
+        <LinearLayout
+            android:id="@+id/ll_wifi_station"
+            android:layout_width="@dimen/dp_65"
+            android:layout_height="@dimen/dp_65"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginTop="@dimen/dp_12"
+            android:layout_marginEnd="@dimen/dp_5"
+            android:layout_marginBottom="@dimen/dp_70"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/iv_wifi_station"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@mipmap/icon_wifi_off" />
+
+            <!--            <TextView-->
+            <!--                android:layout_width="wrap_content"-->
+            <!--                android:layout_height="wrap_content"-->
+            <!--                android:textSize="@dimen/s10"-->
+            <!--                android:textColor="@color/color_333333"-->
+            <!--                android:layout_marginTop="@dimen/d1"-->
+            <!--                android:text="@string/txt_show_lbs"/>-->
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_base_station"
+            android:layout_width="@dimen/dp_65"
+            android:layout_height="@dimen/dp_65"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginTop="@dimen/dp_12"
+            android:layout_marginEnd="@dimen/dp_5"
+            android:layout_marginBottom="@dimen/dp_12"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/iv_base_station"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@mipmap/icon_lbs_off" />
+
+            <!--            <TextView-->
+            <!--                android:layout_width="wrap_content"-->
+            <!--                android:layout_height="wrap_content"-->
+            <!--                android:textSize="@dimen/s10"-->
+            <!--                android:textColor="@color/color_333333"-->
+            <!--                android:layout_marginTop="@dimen/d1"-->
+            <!--                android:text="@string/txt_show_lbs"/>-->
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <include layout="@layout/layout_track_info" />
+
+</LinearLayout>

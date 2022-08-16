@@ -1,0 +1,41 @@
+package com.slxk.gpsantu.mvp.ui.adapter;
+
+
+import android.annotation.SuppressLint;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+
+import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.chad.library.adapter.base.BaseViewHolder;
+import com.slxk.gpsantu.R;
+import com.slxk.gpsantu.mvp.model.bean.DeviceGroupResultBean;
+
+import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+/**
+ * 设备管理-分组列表
+ */
+public class GroupListManageAdapter extends BaseQuickAdapter<DeviceGroupResultBean.GaragesBean, BaseViewHolder> {
+
+    public GroupListManageAdapter(int layoutResId, @Nullable List<DeviceGroupResultBean.GaragesBean> data) {
+        super(layoutResId, data);
+    }
+
+    @Override
+    protected void convert(@NonNull BaseViewHolder helper, DeviceGroupResultBean.GaragesBean item) {
+        helper.setText(R.id.tv_group_name, item.getSname());
+        helper.setTextColor(R.id.tv_group_name, item.isSelect?mContext.getResources().getColor(R.color.color_4A89FD):mContext.getResources().getColor(R.color.color_333333));
+        helper.setText(R.id.tv_device_number, "(" + item.getImei_count() + ")");
+    }
+
+    @Override
+    public void onBindViewHolder(BaseViewHolder holder, int position) {
+        super.onBindViewHolder(holder, position);
+        ViewGroup.LayoutParams params = holder.itemView.getLayoutParams();
+        params.height = LinearLayout.LayoutParams.WRAP_CONTENT;
+    }
+
+}

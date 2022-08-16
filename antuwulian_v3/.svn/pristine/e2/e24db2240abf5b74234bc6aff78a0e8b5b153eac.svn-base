@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_F4F4F4"
+    android:orientation="vertical">
+
+    <include layout="@layout/include_title" />
+
+    <EditText
+        android:id="@+id/edt_sim_number"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_40"
+        android:layout_marginStart="@dimen/dp_15"
+        android:layout_marginTop="@dimen/dp_20"
+        android:layout_marginEnd="@dimen/dp_15"
+        android:background="@drawable/bg_ffffff_5"
+        android:digits="1234567890qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM"
+        android:hint="@string/txt_input_sim_number"
+        android:lines="1"
+        android:paddingStart="@dimen/dp_15"
+        android:paddingEnd="@dimen/dp_15"
+        android:textColor="@color/color_000000"
+        android:textColorHint="@color/color_999999"
+        android:textSize="@dimen/sp_14" />
+
+    <Button
+        android:id="@+id/btn_request"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_40"
+        android:layout_marginStart="@dimen/dp_15"
+        android:layout_marginTop="@dimen/dp_30"
+        android:layout_marginEnd="@dimen/dp_15"
+        android:background="@drawable/bg_2e7bec_5"
+        android:text="@string/txt_request"
+        android:textColor="@color/color_FFFFFF"
+        android:textSize="@dimen/sp_15" />
+
+</LinearLayout>

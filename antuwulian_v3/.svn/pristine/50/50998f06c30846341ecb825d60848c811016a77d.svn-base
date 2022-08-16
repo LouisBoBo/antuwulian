@@ -1,0 +1,209 @@
+package com.slxk.gpsantu.mvp.ui.activity;
+
+import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.graphics.BitmapFactory;
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.amap.api.maps.AMap;
+import com.amap.api.maps.CameraUpdateFactory;
+import com.amap.api.maps.MapView;
+import com.amap.api.maps.model.BitmapDescriptorFactory;
+import com.amap.api.maps.model.CameraPosition;
+import com.amap.api.maps.model.LatLng;
+import com.amap.api.maps.model.MarkerOptions;
+import com.blankj.utilcode.util.SPUtils;
+import com.jess.arms.base.BaseActivity;
+import com.jess.arms.di.component.AppComponent;
+import com.jess.arms.utils.ArmsUtils;
+
+import com.slxk.gpsantu.app.MyApplication;
+import com.slxk.gpsantu.di.component.DaggerAlarmDetailAmapComponent;
+import com.slxk.gpsantu.mvp.contract.AlarmDetailAmapContract;
+import com.slxk.gpsantu.mvp.model.bean.AlarmRecordResultBean;
+import com.slxk.gpsantu.mvp.presenter.AlarmDetailAmapPresenter;
+
+import com.slxk.gpsantu.R;
+import com.slxk.gpsantu.mvp.utils.ConstantValue;
+import com.slxk.gpsantu.mvp.utils.DateUtils;
+import com.slxk.gpsantu.mvp.utils.GpsUtils;
+import com.slxk.gpsantu.mvp.utils.LocationAddressParsed;
+import com.slxk.gpsantu.mvp.utils.ResultDataUtils;
+
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import butterknife.BindView;
+
+import static com.jess.arms.utils.Preconditions.checkNotNull;
+
+
+/**
+ * ================================================
+ * Description:
+ * <p>
+ * Created by MVPArmsTemplate on 09/09/2021 09:09
+ * <a href="mailto:jess.yan.effort@gmail.com">Contact me</a>
+ * <a href="https://github.com/JessYanCoding">Follow me</a>
+ * <a href="https://github.com/JessYanCoding/MVPArms">Star me</a>
+ * <a href="https://github.com/JessYanCoding/MVPArms/wiki">See me</a>
+ * <a href="https://github.com/JessYanCoding/MVPArmsTemplate">模版请保持更新</a>
+ * ================================================
+ */
+public class AlarmDetailAmapActivity extends BaseActivity<AlarmDetailAmapPresenter> implements AlarmDetailAmapContract.View, AMap.OnCameraChangeListener {
+
+    @BindView(R.id.tv_device_name)
+    TextView tvDeviceName;
+    @BindView(R.id.tv_alarm_time)
+    TextView tvAlarmTime;
+    @BindView(R.id.tv_alarm_address)
+    TextView tvAlarmAddress;
+    @BindView(R.id.mapView)
+    MapView mapView;
+
+    private float mZoom = 15;
+    //经纬度默认天安门
+    private double mLatitude = 39.90923;
+    private double mLongitude = 116.397428;
+    @Override
+    public void setupActivityComponent(@NonNull AppComponent appComponent) {
+        DaggerAlarmDetailAmapComponent //如找不到该类,请编译一下项目
+                .builder()
+                .appComponent(appComponent)
+                .view(this)
+                .build()
+                .inject(this);
+    }
+
+    @Override
+    public int initView(@Nullable Bundle savedInstanceState) {
+        return R.layout.activity_alarm_detail_amap; //如果你不需要框架帮你设置 setContentView(id) 需要自行设置,请返回 0
+    }
+
+    @SuppressLint("SetTextI18n")
+    @Override
+    public void initData(@Nullable Bundle savedInstanceState) {
+        mapView.onCreate(savedInstanceState);
+        MyApplication.getMMKVUtils().put(ConstantValue.ACTIVITY_STATUS, false);
+        AMap mAMap = mapView.getMap();
+        mAMap.setOnCameraChangeListener(this);
+        mAMap.getUiSettings().setZoomControlsEnabled(false);
+        AlarmRecordResultBean.ItemsBean alarmBean = (AlarmRecordResultBean.ItemsBean) getIntent().getSerializableExtra("bean");
+        if (alarmBean != null) {
+            String title = alarmBean.getAlarm_name();
+            setTitle(title);
+            tvDeviceName.setText(TextUtils.isEmpty(alarmBean.getNumber()) ? String.valueOf(alarmBean.getImei()) : alarmBean.getNumber());
+            tvAlarmTime.setText(getString(R.string.txt_alarm_time_hint) + DateUtils.timeConversionDate_two(String.valueOf(alarmBean.getTime())));
+            String address = alarmBean.getAddr();
+            String addressLocation = address;
+            // 开始判断，如果是经纬度，则启动app自解析地址
+            address = address.replace(".", "");
+            address = address.replace(",", "");
+            address = address.replace("-", "");
+            address = address.replace(" ", "");
+            Pattern pattern = Pattern.compile("[0-9]*");
+            Matcher isNum = pattern.matcher(address);
+            if (!isNum.matches()) {
+                tvAlarmAddress.setText(getString(R.string.txt_alarm_address_hint) + address);
+            } else {
+                parseAddress(addressLocation);
+            }
+
+            if (mLatitude != 0 && mLongitude != 0) {
+                //返回的经纬度为 wgs84 需要转换为 火星坐标
+                double[] centerLocation = GpsUtils.toGCJ02Point(mLatitude, mLongitude, 6);
+                LatLng carLocation = GpsUtils.aMapGPSConverter(centerLocation[0], centerLocation[1]);
+                mAMap.addMarker(new MarkerOptions().anchor(0.5f, 0.7f)
+                        .position(carLocation)
+                        .icon(BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeResource(getResources(), R.mipmap.icon_alarm))));
+                mAMap.animateCamera(CameraUpdateFactory.newLatLngZoom(carLocation, mZoom));
+            }
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void parseAddress(String addr) {
+        // 开始判断，如果是经纬度，则启动app自解析地址
+        if (!TextUtils.isEmpty(addr)) {
+            String[] location = addr.split(",");
+             mLatitude = Double.parseDouble(location[0]);
+             mLongitude = Double.parseDouble(location[1]);
+            //返回的经纬度为 wgs84 需要转换为 火星坐标
+            double[] locationTo = GpsUtils.toGCJ02Point(mLatitude, mLongitude, 6);
+            LocationAddressParsed.getLocationParsedInstance().Parsed(locationTo[0], locationTo[1]).setAddressListener(str -> {
+                if (tvAlarmAddress == null) return;
+                if (!TextUtils.isEmpty(str)) {
+                    tvAlarmAddress.setText(getString(R.string.txt_alarm_address_hint) + str);
+                } else {
+                    tvAlarmAddress.setText(getString(R.string.txt_alarm_address_hint) + addr);
+                }
+            });
+        }
+    }
+
+    @Override
+    public void showLoading() {
+
+    }
+
+    @Override
+    public void hideLoading() {
+
+    }
+
+    @Override
+    public void showMessage(@NonNull String message) {
+        checkNotNull(message);
+        ArmsUtils.snackbarText(message);
+    }
+
+    @Override
+    public void launchActivity(@NonNull Intent intent) {
+        checkNotNull(intent);
+        ArmsUtils.startActivity(intent);
+    }
+
+    @Override
+    public void killMyself() {
+        finish();
+    }
+
+    @Override
+    public void onCameraChange(CameraPosition cameraPosition) {
+
+    }
+
+    @Override
+    public void onCameraChangeFinish(CameraPosition cameraPosition) {
+        mZoom = cameraPosition.zoom;
+    }
+
+    @Override
+    protected void onResume() {
+        //在activity执行onResume时执行mMapView.onResume ()，重新绘制加载地图
+        mapView.onResume();
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        //在activity执行onPause时执行mMapView.onPause ()，暂停地图的绘制
+        mapView.onPause();
+        super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        //在activity执行onDestroy时执行mMapView.onDestroy()，销毁地图
+        if (mapView != null) {
+            mapView.onDestroy();
+        }
+        super.onDestroy();
+    }
+}
